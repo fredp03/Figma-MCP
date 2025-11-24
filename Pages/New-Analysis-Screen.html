@@ -1,0 +1,2580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Screen - Scale View - Responsive</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;600&family=Klee+One:wght@600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==========================================================================
+           CSS Variable Definitions - Design System
+           ========================================================================== */
+        :root {
+            --text: #5D4F4E;
+            --background: #EAE9E9;
+            --background-secondary: #DDDBD7;
+            --primary: #8C7777;
+            --secondary: #DDDBD7;
+            --text-color: #5D4F4E;
+            --background-outline: #E3E2E2;
+            --text-light: #F0F0F0;
+            --fret-border: #585858;
+        }
+        
+        /* ==========================================================================
+           Typography Scale
+           ========================================================================== */
+        .h1-style {
+            font: 600 23.04px/100% 'Baloo Bhaijaan 2', sans-serif;
+        }
+        
+        .h2-style {
+            font: 400 23.04px/100% 'Baloo Bhaijaan 2', sans-serif;
+        }
+        
+        .h3-style {
+            font: 400 19.20px/33px 'Baloo Bhaijaan 2', sans-serif;
+        }
+        
+        .h4-style {
+            font: 400 14.81px/100% 'Baloo Bhaijaan 2', sans-serif;
+        }
+        
+        .body-text-style {
+            font: 600 16px/33px 'Klee One', sans-serif;
+        }
+        
+        /* ==========================================================================
+           Base Styles
+           ========================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Baloo Bhaijaan 2', sans-serif;
+            color: var(--text);
+            background: var(--background);
+            overflow-x: hidden;
+        }
+        
+        /* ==========================================================================
+           Root Container - Analysis Screen - RESPONSIVE
+           ========================================================================== */
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .analysis-screen {
+            width: 100vw;
+            height: 100vh;
+            min-height: 100vh;
+            background: var(--background);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+        
+        /* ==========================================================================
+           Header - Top Menu Bar Component (Reused from index) - RESPONSIVE
+           ========================================================================== */
+        .top-menu-bar {
+            width: 100%;
+            max-width: 100vw;
+            height: 73px;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+            flex-shrink: 0;
+        }
+        
+        /* Scale Display Bar - Center Positioned - RESPONSIVE */
+        .search-bar {
+            width: min(603px, 35%);
+            height: 47px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 13px;
+            background: var(--background-secondary);
+            border-radius: 13px;
+            border: 1px solid rgba(0, 0, 0, 0.07);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .scale-root {
+            width: 100%;
+            height: 42px;
+            text-align: center;
+            color: var(--text);
+            font-size: clamp(18px, 1.33vw, 23.04px);
+            font-family: 'Baloo Bhaijaan 2';
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 10px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 13.5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 15px;
+            height: 15px;
+        }
+        
+        .search-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Left Navigation Section */
+        .left-navigation {
+            position: absolute;
+            left: 43px;
+            top: 13px;
+            height: 48px;
+            display: flex;
+            align-items: flex-end;
+            gap: 19px;
+            padding: 6px 0 2px 0;
+        }
+        
+        .nav-button {
+            padding: 11px 10px;
+            border-radius: 5px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        
+        .nav-button:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+        .nav-button svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        /* Center Action Buttons Section */
+        .center-actions {
+            position: absolute;
+            left: 268px;
+            top: 13px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .action-button {
+            padding: 11px 14px;
+            border-radius: 5px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        
+        .action-button:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+        .bookmark-button {
+            opacity: 0.80;
+            padding: 19px 14px 11px 14px;
+        }
+        
+        .create-note-button {
+            padding: 10px 14px;
+        }
+        
+        .calendar-button {
+            padding: 19px 14px 11px 14px;
+        }
+        
+        /* Right Toggle Area Section - ANCHORED TO RIGHT */
+        .right-toggle-area {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 73px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding-right: clamp(20px, 2.6vw, 45px);
+        }
+        
+        .toggle-component {
+            width: 108px;
+            height: 53px;
+            position: relative;
+            opacity: 0.83;
+        }
+        
+        /* Hide Info toggle by default with transition */
+        .toggle-component[data-layer="Info Toggle Component"] {
+            opacity: 0;
+            transform: translateX(20px);
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        /* Show Info toggle when notes are active */
+        .toggle-component[data-layer="Info Toggle Component"].visible {
+            opacity: 0.83;
+            transform: translateX(0);
+            pointer-events: auto;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 100%;
+            height: 32px;
+        }
+        
+        .toggle-background {
+            position: absolute;
+            left: 37.69px;
+            top: 9.78px;
+            width: 32.62px;
+            height: 16.31px;
+            background: var(--primary);
+            border-radius: 8.15px;
+            box-shadow: -1px -1px 2px rgba(50, 50, 50, 0.5),
+                        1px 1px 2px rgba(124, 124, 124, 0.3);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .toggle-indicator {
+            position: absolute;
+            right: 3px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 9.78px;
+            height: 9.78px;
+            background: var(--secondary);
+            border-radius: 50%;
+            box-shadow: 1px 1px 3px rgba(73, 72, 70, 0.9),
+                        1px -1px 2px rgba(73, 72, 70, 0.2),
+                        -1px 1px 2px rgba(73, 72, 70, 0.2),
+                        -1px -1px 2px rgba(73, 72, 70, 0.5),
+                        1px 1px 2px rgba(255, 255, 255, 0.3) inset;
+            transition: transform 0.3s;
+        }
+        
+        .toggle-label {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 108px;
+            text-align: center;
+            color: var(--text-color);
+            font-size: 14.81px;
+            font-family: 'Baloo Bhaijaan 2';
+            font-weight: 400;
+        }
+        
+        /* ==========================================================================
+           Main Content Area - Fretboard Analysis Section - RESPONSIVE
+           ========================================================================== */
+        .content-area {
+            width: 100%;
+            max-width: 100vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: clamp(30px, 3.94vw, 68px);
+            flex-shrink: 0;
+            padding: 40px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            flex: 1;
+            min-height: 0;
+        }
+        
+        /* ==========================================================================
+           Guitar Fretboard Component - RESPONSIVE & FUNCTIONAL
+           ========================================================================== */
+        .guitar-fretboard {
+            width: min(1595px, 95%);
+            height: clamp(130px, 11.74vw, 203px);
+            position: relative;
+            background: linear-gradient(135deg, #5B5B5B 100%, #535353 0%);
+            border-radius: 8px;
+            box-shadow: -1px 1px 2px rgba(35, 35, 35, 0.2),
+                        1px -1px 2px rgba(35, 35, 35, 0.2),
+                        -1px -1px 2px rgba(139, 139, 139, 0.9),
+                        1px 1px 3px rgba(35, 35, 35, 0.9);
+            outline: 1px #585858 solid;
+            outline-offset: -1px;
+        }
+        
+        .guitar-strings {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            border-bottom-right-radius: 8px;
+            z-index: 10;
+        }
+        
+        /* Individual string elements */
+        .guitar-strings > div {
+            position: absolute;
+            left: 0;
+            width: 100%;
+        }
+        
+        .guitar-strings > div svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+        
+        .string-1 {
+            top: 7.69%;
+            min-height: 1px;
+            height: max(1px, 0.46vh);
+        }
+        
+        .string-2 {
+            top: 24.12%;
+            min-height: 1px;
+            height: max(1.5px, 0.68vh);
+        }
+        
+        .string-3 {
+            top: 40.55%;
+            min-height: 1px;
+            height: max(2px, 0.91vh);
+        }
+        
+        .string-4 {
+            top: 57.26%;
+            min-height: 1px;
+            height: max(2px, 0.91vh);
+        }
+        
+        .string-5 {
+            top: 73.69%;
+            min-height: 1px;
+            height: max(2.5px, 1.14vh);
+        }
+        
+        .string-6 {
+            top: 90.76%;
+            min-height: 1px;
+            height: max(3px, 1.37vh);
+        }
+        
+        /* Fret columns - custom elements */
+        [class^="Fret"] {
+            width: 6.667%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            outline: 1px #585858 solid;
+            outline-offset: -1px;
+        }
+        
+        /* Fret marker (vertical line on right edge) */
+        .FretMarker {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: max(1px, 0.14vw);
+            min-width: 1px;
+            height: 100%;
+        }
+        
+        .FretMarker svg {
+            width: 100%;
+            height: 100%;
+            min-width: 1px;
+        }
+        
+        /* Center dot positioning */
+        .CenterDot {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: clamp(18px, calc(min(1227px, 95%) / 7.64 * 0.145), 28px);
+            height: clamp(18px, calc(min(1227px, 95%) / 7.64 * 0.145), 28px);
+        }
+        
+        .CenterDot svg,
+        .TopDot svg,
+        .BottomDot svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Top dot (for double dot frets) */
+        .TopDot {
+            position: absolute;
+            left: 50%;
+            top: 25%;
+            transform: translate(-50%, -50%);
+            width: clamp(18px, calc(min(1227px, 95%) / 7.64 * 0.145), 28px);
+            height: clamp(18px, calc(min(1227px, 95%) / 7.64 * 0.145), 28px);
+        }
+        
+        /* Bottom dot (for double dot frets) */
+        .BottomDot {
+            position: absolute;
+            left: 50%;
+            top: 75%;
+            transform: translate(-50%, -50%);
+            width: clamp(18px, calc(min(1227px, 95%) / 7.64 * 0.145), 28px);
+            height: clamp(18px, calc(min(1227px, 95%) / 7.64 * 0.145), 28px);
+        }
+        
+        .Fret15 {
+            left: 0%;
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+        
+        .Fret14 { left: 6.667%; }
+        .Fret13 { left: 13.333%; }
+        .Fret12 { left: 20%; }
+        .Fret11 { left: 26.667%; }
+        .Fret10 { left: 33.333%; }
+        .Fret9 { left: 40%; }
+        .Fret8 { left: 46.667%; }
+        .Fret7 { left: 53.333%; }
+        .Fret6 { left: 60%; }
+        .Fret5 { left: 66.667%; }
+        .Fret4 { left: 73.333%; }
+        .Fret3 { left: 80%; }
+        .Fret2 { left: 86.667%; }
+        
+        .Fret1 {
+            left: 93.333%;
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+        
+        /* Fret column elements */
+        fret-column {
+            display: block;
+            height: 100%;
+        }
+        
+        .fret-column__inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .fret-column__note-layer {
+            position: absolute;
+            inset: 0;
+            display: block;
+            pointer-events: none;
+        }
+        
+        /* Note markers */
+        note-marker {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: clamp(18px, calc(min(1595px, 95%) / 7.64 * 0.145), 28px);
+            height: clamp(18px, calc(min(1595px, 95%) / 7.64 * 0.145), 28px);
+            display: block;
+            z-index: 15;
+            pointer-events: auto;
+        }
+        
+        .note-marker__button {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            border: none;
+            padding: 0;
+            background: transparent;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .note-marker__button:focus-visible {
+            outline: 2px solid #AA6F6F;
+            outline-offset: 2px;
+        }
+        
+        .note-marker__layer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: block;
+        }
+        
+        .note-marker__circle {
+            width: 25px;
+            height: 25px;
+            background: #A67B7B;
+            box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.25);
+            border-radius: 50%;
+            border: 1px #AA6F6F solid;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        note-marker:hover .note-marker__circle,
+        note-marker[selected] .note-marker__circle {
+            opacity: 0;
+        }
+        
+        .note-marker__svg {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+        
+        .note-marker__svg svg {
+            display: block;
+            overflow: visible;
+        }
+        
+        .note-marker__text {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 12px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+            transform: translate(-50%, -54%);
+        }
+        
+        note-marker:hover:not([selected]) .note-marker__svg--hover {
+            opacity: 1;
+        }
+        
+        note-marker:hover:not([selected]) .note-marker__text {
+            opacity: 1;
+        }
+        
+        note-marker[selected] .note-marker__svg--selected {
+            opacity: 1;
+        }
+        
+        note-marker[selected] .note-marker__text {
+            opacity: 1;
+        }
+        
+        note-marker[selected]:hover .note-marker__svg--hover {
+            opacity: 1;
+        }
+        
+        note-marker[selected]:hover .note-marker__svg--selected {
+            opacity: 0;
+        }
+        
+        fret-column[data-hide-marker] .FretMarker {
+            display: none;
+        }
+        
+        /* ==========================================================================
+           Analysis Navigation Menu - RESPONSIVE
+           ========================================================================== */
+        .analysis-menu {
+            min-height: 83px;
+            padding: 20px clamp(16px, 1.85vw, 32px);
+            border-radius: 13px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            position: relative;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .menu-items-container {
+            display: flex;
+            align-items: center;
+            gap: clamp(20px, 2.31vw, 40px);
+            flex-wrap: wrap;
+        }
+        
+        .menu-item {
+            color: var(--text);
+            font-size: clamp(16px, 1.11vw, 19.20px);
+            font-family: 'Baloo Bhaijaan 2';
+            font-weight: 400;
+            line-height: 33px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+        
+        .menu-item:hover {
+            opacity: 0.7;
+        }
+        
+        .primary-menu-view .menu-item.active {
+            font-weight: 400;
+        }
+        
+        .menu-divider-vertical {
+            width: 0;
+            height: 25px;
+            border-left: 1px solid var(--text);
+            opacity: 1;
+        }
+        
+        .menu-divider-horizontal {
+            width: 100%;
+            height: 0;
+            border-top: 1px solid var(--text);
+            opacity: 0.23;
+        }
+        
+        /* Secondary Menu View */
+        .analysis-menu[data-view="secondary"] .menu-items-container {
+            padding-left: 10px;
+            gap: 84px;
+        }
+        
+        .active-menu-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .active-menu-title {
+            color: var(--text);
+            font-size: 19.20px;
+            font-family: 'Baloo Bhaijaan 2';
+            font-weight: 600;
+            line-height: 33px;
+        }
+        
+        /* Tertiary Menu View */
+        .analysis-menu[data-view="tertiary"] .breadcrumb-path {
+            display: flex;
+            align-items: center;
+            gap: 26px;
+            color: var(--text);
+            font-family: 'Baloo Bhaijaan 2';
+            font-weight: 600;
+        }
+        
+        .breadcrumb-primary {
+            font-size: 19.20px;
+            line-height: 33px;
+        }
+        
+        .breadcrumb-secondary {
+            font-size: 14.81px;
+            line-height: normal;
+        }
+        
+        .analysis-menu[data-view="tertiary"] .menu-items-container {
+            padding-left: 10px;
+            gap: 84px;
+        }
+        
+        @keyframes menuViewFadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .menu-view-animate {
+            animation: menuViewFadeUp 220ms ease forwards;
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+            .menu-view-animate {
+                animation: none;
+            }
+        }
+        
+        /* Interactive headers behave as back controls */
+        .active-menu-header,
+        .breadcrumb-primary {
+            cursor: pointer;
+        }
+        
+        .active-menu-header:hover,
+        .breadcrumb-primary:hover,
+        .active-menu-header:focus-visible,
+        .breadcrumb-primary:focus-visible {
+            opacity: 0.7;
+        }
+        
+        /* Hide/Show based on view */
+        .analysis-menu[data-view="secondary"] .primary-menu-view,
+        .analysis-menu[data-view="tertiary"] .primary-menu-view {
+            display: none;
+        }
+        
+        .analysis-menu[data-view="primary"] .secondary-menu-view,
+        .analysis-menu[data-view="primary"] .tertiary-menu-view,
+        .analysis-menu[data-view="secondary"] .tertiary-menu-view,
+        .analysis-menu[data-view="tertiary"] .secondary-menu-view {
+            display: none;
+        }
+        
+        /* ==========================================================================
+           Footer - Info Cards Section - RESPONSIVE & ANCHORED TO BOTTOM
+           ========================================================================== */
+        .info-cards-section {
+            width: 100%;
+            min-height: 200px;
+            
+            padding: 60px clamp(20px, 2.6vw, 45px);
+            background: var(--background-outline);
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: clamp(15px, 1.5vw, 30px);
+            flex-shrink: 0;
+            box-sizing: border-box;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        
+        /* Cards Container Wrapper */
+        .cards-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: clamp(15px, 1.5vw, 30px);
+            max-width: 1638px;
+            width: 100%;
+        }
+        
+        /* Info Card Styles - RESPONSIVE */
+        .info-card {
+            padding: 20px 4px;
+            border-radius: 13px;
+            display: inline-flex;
+            flex-direction: column;
+            width: auto;
+            gap: 10px;
+            min-width: 280px;
+            flex: 1;
+            max-width: 1000px;
+        }
+        
+        .info-card.dark {
+            background: var(--primary);
+            color: var(--text-light);
+        }
+        
+        .info-card.light {
+            background: var(--background-secondary);
+            color: var(--text);
+        }
+        
+        .scales-tensions-card {
+            flex: 1;
+        }
+        
+        .history-card {
+            flex: 1;
+        }
+        
+        .next-chord-card {
+            flex: 0.93;
+        }
+        
+        .card-title-section {
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .card-title {
+            font-size: clamp(18px, 1.33vw, 23.04px);
+            font-family: 'Baloo Bhaijaan 2';
+            font-weight: 400;
+        }
+        
+        .card-divider {
+            height: 0;
+            border: none;
+            border-top: 1px solid currentColor;
+            opacity: 0.23;
+        }
+        
+        .card-content {
+            padding: 0 19px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .text-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            align-self: stretch;
+        }
+        
+        .text-item {
+            font-size: clamp(14px, 0.93vw, 16px);
+            font-family: 'Klee One';
+            font-weight: 600;
+            line-height: 33px;
+        }
+        
+        .text-item.wrap {
+            white-space: normal;
+            word-wrap: break-word;
+        }
+        
+        .text-item.nowrap {
+            white-space: nowrap;
+        }
+        
+        /* ==========================================================================
+           Note-Taking Section - RESPONSIVE
+           ========================================================================== */
+        .note-taking-section {
+            width: 100%;
+            flex: 1;
+            padding: 32px;
+            background: #DDDBD7;
+            box-shadow: 2px 2px 5px rgba(201, 199, 196, 0.90);
+            border-radius: 13px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            display: none; /* Hidden by default, shown when library button is clicked */
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            box-sizing: border-box;
+            min-height: 0;
+        }
+        
+        .note-taking-section.active {
+            display: flex;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: none; /* Hide scrollbar in Firefox */
+            -ms-overflow-style: none; /* Hide scrollbar in IE 10+ */
+        }
+
+        .note-taking-section.active::-webkit-scrollbar {
+            display: none; /* Hide scrollbar in WebKit browsers */
+        }
+        
+        /* Hide analysis menu when notes are active - will be shown again */
+        .analysis-menu {
+            transition: opacity 0.3s ease;
+        }
+        
+        /* Note-Taking Wrapper (Left Side) */
+        .note-taking-wrapper {
+            flex: 1;
+            padding-left: clamp(10px, 1.33vw, 23px);
+            padding-right: clamp(20px, 5.9vw, 23px);
+            border-radius: 13px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 0;
+        }
+        
+        .note-title-section {
+            width: 100%;
+            min-height: 35.13px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .note-title {
+            color: var(--text-color);
+            font-size: clamp(18px, 1.33vw, 23.04px);
+            font-family: 'Baloo Bhaijaan 2';
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            margin: 0;
+        }
+        
+        .options-toolbar-area {
+            display: flex;
+            align-items: center;
+            gap: clamp(16px, 1.85vw, 32px);
+            flex-wrap: wrap;
+        }
+        
+        .text-options-toolbar {
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(24px, 2.78vw, 48px);
+        }
+        
+        .text-formatting-group,
+        .block-formatting-group {
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(12px, 1.39vw, 24px);
+        }
+        
+        .formatting-button {
+            width: 16px;
+            height: 17px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        
+        .formatting-button:hover {
+            opacity: 1;
+        }
+        
+        .formatting-button svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .undo-redo-group {
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(12px, 1.39vw, 24px);
+        }
+        
+        .undo-redo-button {
+            width: 24px;
+            height: 24px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            opacity: 0.25;
+            transition: opacity 0.2s;
+        }
+        
+        .undo-redo-button:not(:disabled):hover {
+            opacity: 0.5;
+        }
+        
+        .undo-redo-button svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .title-divider {
+            width: 100%;
+            height: 0;
+            border: none;
+            border-top: 1px solid var(--text-color);
+            opacity: 0.23;
+        }
+        
+        .note-content-area {
+            width: 100%;
+            flex: 1;
+            padding: 15px 0;
+            overflow-y: auto;
+            display: flex;
+            align-items: flex-start;
+            gap: 35px;
+            position: relative;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+        
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .note-content-area::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .text-area {
+            flex: 1;
+            color: #000;
+            font-size: 16px;
+            font-family: 'Klee One';
+            font-weight: 600;
+            line-height: 33px;
+            white-space: pre-wrap;
+            outline: none;
+            border: none;
+        }
+        
+        .text-area:focus {
+            outline: none;
+            border: none;
+        }
+        
+        .text-area p {
+            margin: 0;
+        }
+        
+        .text-area ul {
+            margin: 0;
+            padding-left: 24px;
+        }
+        
+        .text-area li {
+            margin: 0;
+        }
+        
+        /* Info Sidebar (Right Side of Note-Taking Section) */
+        .info-sidebar {
+            padding: clamp(20px, 2.26vw, 39px) clamp(16px, 1.91vw, 33px);
+            background: #DDDBD7;
+            box-shadow: 2px 2px 5px rgba(199, 197, 194, 0.90) inset;
+            border-radius: 13px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            gap: clamp(26px, 3.01vw, 52px);
+            min-width: 515px;
+            max-width: 800px;
+            height: 100%;
+            opacity: 1;
+            transform: translateX(0);
+            transition: opacity 0.3s ease, transform 0.3s ease, max-width 0.3s ease, min-width 0.3s ease, padding 0.3s ease;
+        }
+        
+        .info-sidebar.hidden {
+            opacity: 0;
+            transform: translateX(30px);
+            pointer-events: none;
+            min-width: 0;
+            max-width: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        /* Information Cards in Sidebar (Dark Theme) */
+        .info-sidebar .info-card {
+            width: 100%;
+            padding: 20px 4px;
+            background: var(--primary);
+            border-radius: 13px;
+            border: 1px solid rgba(0, 0, 0, 0.13);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .info-sidebar .card-title-section {
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .info-sidebar .card-title {
+            color: var(--text-light);
+            font-size: clamp(18px, 1.33vw, 23.04px);
+            font-family: 'Baloo Bhaijaan 2';
+            font-weight: 400;
+        }
+        
+        .info-sidebar .card-divider {
+            width: 100%;
+            height: 0;
+            border: none;
+            border-top: 1px solid var(--text-light);
+            opacity: 0.23;
+        }
+        
+        .info-sidebar .card-content {
+            padding: 0 19px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            flex-wrap: nowrap;
+        }
+        
+        .info-sidebar .text-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex: 0 0 auto;
+            min-width: 150px;
+            white-space: nowrap;
+        }
+        
+        .info-sidebar .text-column p {
+            color: var(--text-light);
+            font-size: 16px;
+            font-family: 'Klee One';
+            font-weight: 600;
+            line-height: 33px;
+            white-space: nowrap;
+        }
+        
+        /* Toggle visibility of fretboard section and footer when notes are active */
+        /* Keep fretboard and analysis menu visible, just hide the footer */
+        .info-cards-section.notes-active {
+            display: none; /* Hide footer cards when in note mode */
+        }
+        
+        /* ==========================================================================
+           Media Queries for Smaller Screens
+           ========================================================================== */
+        @media (max-width: 1400px) {
+            .info-cards-section {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+            }
+            
+            .info-card {
+                min-width: 250px;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .content-area {
+                gap: 30px;
+                padding: 15px;
+            }
+            
+            .guitar-fretboard {
+                width: 100%;
+                height: clamp(80px, 12vw, 156px);
+            }
+            
+            .info-cards-section {
+                min-height: 180px;
+            }
+            
+            .info-card {
+                min-width: 220px;
+            }
+            
+            .card-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .text-column {
+                width: 100%;
+            }
+            
+            /* Note-taking responsive adjustments */
+            .note-taking-section {
+                flex-direction: column;
+                padding: 20px;
+            }
+            
+            .note-taking-wrapper {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            
+            .info-sidebar {
+                min-width: 100%;
+                max-width: 100%;
+            }
+            
+            .info-sidebar .card-content {
+                flex-wrap: wrap;
+            }
+            
+            .info-sidebar .text-column {
+                white-space: normal;
+            }
+            
+            .options-toolbar-area {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .left-navigation,
+            .center-actions {
+                gap: 10px;
+            }
+            
+            .search-bar {
+                width: 50%;
+            }
+            
+            .menu-items-container {
+                gap: 15px;
+                font-size: 16px;
+            }
+            
+            .info-cards-section {
+                padding: 0 15px;
+            }
+            
+            /* Note-taking mobile adjustments */
+            .note-title-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .text-options-toolbar {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 
+    ============================================================================
+    ROOT CONTAINER: Analysis Screen - Scale View
+    Type: Main application frame for scale analysis
+    Dimensions: 1728px × 1117px
+    ============================================================================
+    -->
+    <div class="analysis-screen" data-layer="Analysis Screen - Scale View/Default">
+        
+        <!-- 
+        ========================================================================
+        HEADER: Top Menu Bar Component
+        Type: Fixed header navigation (reused component)
+        Dimensions: 1728px × 73px
+        ========================================================================
+        -->
+        <header class="top-menu-bar" data-layer="Top Menu Bar">
+            
+            <!-- Scale Display Bar - Center Positioned -->
+            <div class="search-bar" data-layer="Search Bar">
+                <div class="scale-root" data-layer="Scale Root"></div>
+                <div class="search-icon" data-layer="icon">
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path opacity="0.41" d="M13.8333 15L8.58333 9.75C8.16667 10.0833 7.6875 10.3472 7.14583 10.5417C6.60417 10.7361 6.02778 10.8333 5.41667 10.8333C3.90278 10.8333 2.62153 10.309 1.57292 9.26042C0.524306 8.21181 0 6.93056 0 5.41667C0 3.90278 0.524306 2.62153 1.57292 1.57292C2.62153 0.524306 3.90278 0 5.41667 0C6.93056 0 8.21181 0.524306 9.26042 1.57292C10.309 2.62153 10.8333 3.90278 10.8333 5.41667C10.8333 6.02778 10.7361 6.60417 10.5417 7.14583C10.3472 7.6875 10.0833 8.16667 9.75 8.58333L15 13.8333L13.8333 15ZM5.41667 9.16667C6.45833 9.16667 7.34375 8.80208 8.07292 8.07292C8.80208 7.34375 9.16667 6.45833 9.16667 5.41667C9.16667 4.375 8.80208 3.48958 8.07292 2.76042C7.34375 2.03125 6.45833 1.66667 5.41667 1.66667C4.375 1.66667 3.48958 2.03125 2.76042 2.76042C2.03125 3.48958 1.66667 4.375 1.66667 5.41667C1.66667 6.45833 2.03125 7.34375 2.76042 8.07292C3.48958 8.80208 4.375 9.16667 5.41667 9.16667Z" fill="var(--text)"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- Left Navigation Section -->
+            <nav class="left-navigation" data-layer="Frame 2">
+                <button class="nav-button home-button" data-layer="Home Button" aria-label="Home">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18.7074 16.5851V8.72749C18.7074 8.25818 18.6005 7.79505 18.3949 7.37317C18.1893 6.95128 17.8904 6.58172 17.5209 6.29247L10.9993 1.18844C10.6365 0.904357 10.189 0.75 9.7282 0.75C9.26741 0.75 8.8199 0.904357 8.45709 1.18844L1.93555 6.29144C1.56603 6.5809 1.26725 6.95068 1.06184 7.37274C0.856433 7.79481 0.749793 8.25809 0.75 8.72749V16.5851C0.75 17.7809 1.71906 18.75 2.91491 18.75H7.00763V10.5388H12.4488V18.75H16.5415C17.1157 18.75 17.6663 18.5219 18.0723 18.1159C18.4783 17.7099 18.7074 17.1593 18.7074 16.5851Z" stroke="var(--text)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                
+                <button class="nav-button library-button" data-layer="Library" aria-label="Library">
+                    <svg width="25" height="20" viewBox="0 0 25 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12.3246 5.12956C12.3246 4.55443 12.2113 3.98493 11.9912 3.45358C11.7711 2.92222 11.4485 2.43942 11.0418 2.03274C10.6351 1.62606 10.1523 1.30347 9.62098 1.08337C9.08963 0.863281 8.52013 0.75 7.94499 0.75H3.25261C2.58887 0.75 1.95233 1.01367 1.483 1.483C1.01367 1.95233 0.75 2.58887 0.75 3.25261V14.4192C0.75 15.083 1.01367 15.7195 1.483 16.1889C1.95233 16.6582 2.58887 16.9218 3.25261 16.9218H8.15396C9.1935 16.9218 10.2073 17.2454 11.0545 17.8478L12.3246 18.75M12.3246 5.12956V18.75M12.3246 5.12956C12.3246 3.96803 12.786 2.85407 13.6073 2.03274C14.4286 1.21142 15.5426 0.75 16.7041 0.75H21.3965C22.0602 0.75 22.6968 1.01367 23.1661 1.483C23.6354 1.95233 23.8991 2.58887 23.8991 3.25261V14.4192C23.8991 15.083 23.6354 15.7195 23.1661 16.1889C22.6968 16.6582 22.0602 16.9218 21.3965 16.9218H16.4939C15.4548 16.9221 14.4415 17.2457 13.5946 17.8478L12.3246 18.75" stroke="var(--text)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </nav>
+            
+            <!-- Center Action Buttons Section -->
+            <div class="center-actions" data-layer="Frame 3">
+                <button class="action-button bookmark-button" aria-label="Bookmark">
+                    <svg width="17" height="20" viewBox="0 0 17 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0.75 18.0952C0.75 18.6074 1.31984 18.9211 1.76111 18.6506L7.62615 15.0711C7.80139 14.9649 8.00239 14.9087 8.2073 14.9087C8.41222 14.9087 8.61322 14.9649 8.78846 15.0711L14.6535 18.6506C14.7533 18.7124 14.8677 18.7466 14.985 18.7496C15.1023 18.7527 15.2183 18.7245 15.3212 18.668C15.424 18.6115 15.51 18.5287 15.5704 18.4281C15.6307 18.3274 15.6632 18.2125 15.6646 18.0952V3.83578C15.6646 3.01738 15.3395 2.2325 14.7608 1.6538C14.1821 1.07511 13.3972 0.75 12.5788 0.75H3.83578C3.01738 0.75 2.2325 1.07511 1.6538 1.6538C1.07511 2.2325 0.75 3.01738 0.75 3.83578V18.0952Z" stroke="var(--text)" stroke-width="1.5" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                
+                <button class="action-button create-note-button" aria-label="Create Note">
+                    <svg width="29" height="29" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M7.89744 15.7949C8.93454 15.7949 9.96149 15.5906 10.9197 15.1937C11.8778 14.7968 12.7484 14.2151 13.4818 13.4818C14.2151 12.7484 14.7968 11.8778 15.1937 10.9197C15.5906 9.96149 15.7949 8.93454 15.7949 7.89744C15.7949 6.86033 15.5906 5.83338 15.1937 4.87522C14.7968 3.91706 14.2151 3.04645 13.4818 2.31311C12.7484 1.57976 11.8778 0.99804 10.9197 0.601156C9.96149 0.204273 8.93454 -1.54541e-08 7.89744 0C5.80291 3.12109e-08 3.79416 0.832049 2.31311 2.31311C0.832049 3.79416 0 5.80291 0 7.89744C0 9.99197 0.832049 12.0007 2.31311 13.4818C3.79416 14.9628 5.80291 15.7949 7.89744 15.7949ZM7.89744 2.88185C8.08785 2.88185 8.27046 2.95749 8.4051 3.09213C8.53974 3.22677 8.61538 3.40938 8.61538 3.59979V7.17949H12.1951C12.3855 7.17949 12.5681 7.25513 12.7027 7.38977C12.8374 7.52441 12.913 7.70702 12.913 7.89744C12.913 8.08785 12.8374 8.27046 12.7027 8.4051C12.5681 8.53974 12.3855 8.61539 12.1951 8.61539H8.61538V12.1951C8.61538 12.3855 8.53974 12.5681 8.4051 12.7027C8.27046 12.8374 8.08785 12.913 7.89744 12.913C7.70702 12.913 7.52441 12.8374 7.38977 12.7027C7.25513 12.5681 7.17949 12.3855 7.17949 12.1951V8.61539H3.59979C3.40938 8.61539 3.22677 8.53974 3.09213 8.4051C2.95749 8.27046 2.88185 8.08785 2.88185 7.89744C2.88185 7.70702 2.95749 7.52441 3.09213 7.38977C3.22677 7.25513 3.40938 7.17949 3.59979 7.17949H7.17949V3.59979C7.17949 3.40938 7.25513 3.22677 7.38977 3.09213C7.52441 2.95749 7.70702 2.88185 7.89744 2.88185Z" fill="var(--text)"/>
+                        <path d="M28 18.6666H25.559C23.1467 18.6666 21.9406 18.6666 21.0187 19.1361C20.2082 19.5491 19.5492 20.2081 19.1363 21.0186C18.6667 21.9404 18.6667 23.1466 18.6667 25.5589V27.9999M20.8206 10.0512H18.6667M15.077 15.7948H17.2308M18.3077 4.30762H18.8103C22.0267 4.30762 23.6349 4.30762 24.864 4.93367C25.9447 5.48432 26.8233 6.36294 27.374 7.44362C28 8.67275 28 10.281 28 13.4974V18.4498C28 19.8541 28 20.5577 27.8421 21.2182C27.6999 21.804 27.4688 22.364 27.1529 22.8781C26.7982 23.4582 26.3014 23.955 25.3077 24.9486L24.9488 25.3076C23.9551 26.3013 23.4583 26.7981 22.8782 27.1542C22.3644 27.4691 21.8043 27.7012 21.2183 27.842C20.5578 27.9999 19.8542 27.9999 18.4499 27.9999H13.4975C10.2811 27.9999 8.67287 27.9999 7.44374 27.3739C6.36306 26.8232 5.48444 25.9446 4.93379 24.8639C4.30774 23.6348 4.30774 22.0266 4.30774 18.8102V18.3076" stroke="var(--text)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                
+                <button class="action-button calendar-button" aria-label="Calendar">
+                    <svg width="19" height="20" viewBox="0 0 19 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0.75 7.07432H17.777M4.74989 2.69595V0.75M13.7499 2.69595V0.75M14.3716 2.69595H4.15541C3.25224 2.69595 2.38606 3.05473 1.74742 3.69337C1.10878 4.332 0.75 5.19818 0.75 6.10135V15.3446C0.75 16.2478 1.10878 17.1139 1.74742 17.7526C2.38606 18.3912 3.25224 18.75 4.15541 18.75H14.3716C15.2748 18.75 16.141 18.3912 16.7796 17.7526C17.4182 17.1139 17.777 16.2478 17.777 15.3446V6.10135C17.777 5.19818 17.4182 4.332 16.7796 3.69337C16.141 3.05473 15.2748 2.69595 14.3716 2.69595Z" stroke="var(--text)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Right Toggle Area Section -->
+            <div class="right-toggle-area" data-layer="Toggle Area">
+                <div class="toggle-component" data-layer="Info Toggle Component" data-toggled="False">
+                    <div class="toggle-switch" data-layer="Toggle Info">
+                        <div class="toggle-background">
+                            <div class="toggle-indicator"></div>
+                        </div>
+                    </div>
+                    <div class="toggle-label" data-layer="Label">Info</div>
+                </div>
+                
+                <div class="toggle-component" data-layer="Toggle Component" data-toggled="True">
+                    <div class="toggle-switch" data-layer="Toggle Fretboard">
+                        <div class="toggle-background">
+                            <div class="toggle-indicator"></div>
+                        </div>
+                    </div>
+                    <div class="toggle-label" data-layer="Label">Scale View</div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- 
+        ========================================================================
+        MAIN CONTENT AREA - Fretboard Analysis Section
+        Type: Primary content with guitar fretboard and analysis menu
+        ========================================================================
+        -->
+        <main class="content-area" data-layer="Fretboard Analysis Section">
+            
+            <!-- Guitar Fretboard Component -->
+            <section class="guitar-fretboard" data-layer="Guitar Fretboard">
+                <div class="guitar-strings" data-layer="Guitar Strings">
+                    <div class="string-1">
+                        <svg viewBox="0 0 1440 1" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                            <path d="M1440 0.000125889L1440 1.00013L-8.74228e-08 1L0 0L1440 0.000125889Z" fill="url(#string1_gradient)"/>
+                            <defs>
+                                <linearGradient id="string1_gradient" x1="720" y1="6.29444e-05" x2="720" y2="1.00006" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#818181" stop-opacity="0"/>
+                                    <stop offset="0.0865385" stop-color="#5A5A5A"/>
+                                    <stop offset="0.384615" stop-color="#7C7C7C"/>
+                                    <stop offset="0.663462" stop-color="#494949"/>
+                                    <stop offset="0.903846" stop-color="#5A5A5A"/>
+                                    <stop offset="1" stop-color="#1B1B1B" stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div class="string-2">
+                        <svg viewBox="0 0 1440 1.5" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                            <path d="M1440 0.000125889L1440 1.50013L-1.31134e-07 1.5L0 0L1440 0.000125889Z" fill="url(#string2_gradient)"/>
+                            <defs>
+                                <linearGradient id="string2_gradient" x1="720" y1="6.29444e-05" x2="720" y2="1.50006" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#818181" stop-opacity="0"/>
+                                    <stop offset="0.0865385" stop-color="#5A5A5A"/>
+                                    <stop offset="0.384615" stop-color="#7C7C7C"/>
+                                    <stop offset="0.663462" stop-color="#494949"/>
+                                    <stop offset="0.903846" stop-color="#5A5A5A"/>
+                                    <stop offset="1" stop-color="#1B1B1B" stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div class="string-3">
+                        <svg viewBox="0 0 1440 2" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                            <path d="M1440 0.000125889L1440 2.00013L-1.74846e-07 2L0 0L1440 0.000125889Z" fill="url(#string3_gradient)"/>
+                            <defs>
+                                <linearGradient id="string3_gradient" x1="720" y1="6.29444e-05" x2="720" y2="2.00006" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#818181" stop-opacity="0"/>
+                                    <stop offset="0.0865385" stop-color="#5A5A5A"/>
+                                    <stop offset="0.384615" stop-color="#7C7C7C"/>
+                                    <stop offset="0.663462" stop-color="#494949"/>
+                                    <stop offset="0.903846" stop-color="#5A5A5A"/>
+                                    <stop offset="1" stop-color="#1B1B1B" stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div class="string-4">
+                        <svg viewBox="0 0 1440 2" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                            <path d="M1440 0.000125889L1440 2.00013L-1.74846e-07 2L0 0L1440 0.000125889Z" fill="url(#string4_gradient)"/>
+                            <defs>
+                                <linearGradient id="string4_gradient" x1="720" y1="6.29444e-05" x2="720" y2="2.00006" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#818181" stop-opacity="0"/>
+                                    <stop offset="0.0865385" stop-color="#5A5A5A"/>
+                                    <stop offset="0.384615" stop-color="#7C7C7C"/>
+                                    <stop offset="0.663462" stop-color="#494949"/>
+                                    <stop offset="0.903846" stop-color="#5A5A5A"/>
+                                    <stop offset="1" stop-color="#1B1B1B" stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div class="string-5">
+                        <svg viewBox="0 0 1440 2.5" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                            <path d="M1440 0.000125889L1440 2.50013L-2.18557e-07 2.5L0 0L1440 0.000125889Z" fill="url(#string5_gradient)"/>
+                            <defs>
+                                <linearGradient id="string5_gradient" x1="720" y1="6.29444e-05" x2="720" y2="2.50006" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#818181" stop-opacity="0"/>
+                                    <stop offset="0.0865385" stop-color="#5A5A5A"/>
+                                    <stop offset="0.384615" stop-color="#7C7C7C"/>
+                                    <stop offset="0.663462" stop-color="#494949"/>
+                                    <stop offset="0.903846" stop-color="#5A5A5A"/>
+                                    <stop offset="1" stop-color="#1B1B1B" stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div class="string-6">
+                        <svg viewBox="0 0 1440 3" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                            <path d="M1440 0V2.8H0V0H1440Z" fill="url(#string6_gradient)"/>
+                            <defs>
+                                <linearGradient id="string6_gradient" x1="720" y1="0" x2="720" y2="2.8" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#818181" stop-opacity="0"/>
+                                    <stop offset="0.0865385" stop-color="#5A5A5A"/>
+                                    <stop offset="0.384615" stop-color="#7C7C7C"/>
+                                    <stop offset="0.663462" stop-color="#494949"/>
+                                    <stop offset="0.903846" stop-color="#5A5A5A"/>
+                                    <stop offset="1" stop-color="#1B1B1B" stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                </div>
+                
+                <fret-column class="Fret15" fret="15" fret-type="single"></fret-column>
+                <fret-column class="Fret14" fret="14" fret-type="none"></fret-column>
+                <fret-column class="Fret13" fret="13" fret-type="none"></fret-column>
+                <fret-column class="Fret12" fret="12" fret-type="double"></fret-column>
+                <fret-column class="Fret11" fret="11" fret-type="none"></fret-column>
+                <fret-column class="Fret10" fret="10" fret-type="none"></fret-column>
+                <fret-column class="Fret9" fret="9" fret-type="single"></fret-column>
+                <fret-column class="Fret8" fret="8" fret-type="none"></fret-column>
+                <fret-column class="Fret7" fret="7" fret-type="single"></fret-column>
+                <fret-column class="Fret6" fret="6" fret-type="none"></fret-column>
+                <fret-column class="Fret5" fret="5" fret-type="single"></fret-column>
+                <fret-column class="Fret4" fret="4" fret-type="none"></fret-column>
+                <fret-column class="Fret3" fret="3" fret-type="single"></fret-column>
+                <fret-column class="Fret2" fret="2" fret-type="none"></fret-column>
+                <fret-column class="Fret1" fret="1" fret-type="none" data-hide-marker></fret-column>
+            </section>
+            
+            <!-- Analysis Navigation Menu -->
+            <nav class="analysis-menu" data-layer="Menus" data-view="primary">
+                <!-- Primary Menu View -->
+                <div class="primary-menu-view">
+                    <div class="menu-items-container" data-layer="Primary Menu Items List">
+                        <button class="menu-item active" data-layer="Menu Item 1" data-menu-id="scale">Scale</button>
+                        <div class="menu-divider-vertical" data-layer="Divider"></div>
+                        <button class="menu-item" data-layer="Menu Item 2" data-menu-id="positions">Positions</button>
+                        <div class="menu-divider-vertical" data-layer="Divider"></div>
+                        <button class="menu-item" data-layer="Menu Item 3" data-menu-id="chords">Chords</button>
+                        <div class="menu-divider-vertical" data-layer="Divider"></div>
+                        <button class="menu-item" data-layer="Menu Item 4" data-menu-id="similar-scales">Similar Scales</button>
+                    </div>
+                    <hr class="menu-divider-horizontal" data-layer="Divider">
+                </div>
+                
+                <!-- Secondary Menu View -->
+                <div class="secondary-menu-view">
+                    <div class="active-menu-header">
+                        <div class="active-menu-title" data-active-menu>Scale</div>
+                    </div>
+                    <hr class="menu-divider-horizontal" data-layer="Divider">
+                    <div class="menu-items-container" data-layer="Secondary Menu Items">
+                        <button class="menu-item" data-secondary-item="1">Low E</button>
+                        <button class="menu-item" data-secondary-item="2">A</button>
+                        <button class="menu-item" data-secondary-item="3">D</button>
+                        <button class="menu-item" data-secondary-item="4">G</button>
+                        <button class="menu-item" data-secondary-item="5">B</button>
+                        <button class="menu-item" data-secondary-item="6">High E</button>
+                    </div>
+                </div>
+                
+                <!-- Tertiary Menu View -->
+                <div class="tertiary-menu-view">
+                    <div class="breadcrumb-path">
+                        <div class="breadcrumb-primary" data-breadcrumb-primary>Scale</div>
+                        <div class="breadcrumb-secondary" data-breadcrumb-secondary>Low E</div>
+                    </div>
+                    <hr class="menu-divider-horizontal" data-layer="Divider">
+                    <div class="menu-items-container" data-layer="Tertiary Menu Items">
+                        <button class="menu-item" data-tertiary-item="1">Pointer</button>
+                        <button class="menu-item" data-tertiary-item="2">Middle</button>
+                        <button class="menu-item" data-tertiary-item="3">Ring</button>
+                        <button class="menu-item" data-tertiary-item="4">Pinkie</button>
+                    </div>
+                </div>
+            </nav>
+            
+            <!-- 
+            ================================================================
+            NOTE-TAKING SECTION
+            Type: Note editor with info sidebar (shown when library button clicked)
+            ================================================================
+            -->
+            <section class="note-taking-section" data-layer="Note-taking Section">
+            
+            <!-- Note-Taking Wrapper (Left Side) -->
+            <article class="note-taking-wrapper" data-layer="Note-Taking-Wrapper">
+                <header class="note-title-section" data-layer="Title">
+                    <h1 class="note-title">Note Title</h1>
+                    
+                    <div class="options-toolbar-area" data-layer="Options Area">
+                        <div class="text-options-toolbar" data-layer="Text Options Toolbar">
+                            <div class="text-formatting-group" data-layer="Text">
+                                <button class="formatting-button" aria-label="Bold">
+                                    <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M10.1669 8.35841C10.4933 8.14722 10.7688 7.85792 10.9714 7.51358C11.1739 7.16924 11.298 6.77938 11.3336 6.37508C11.3398 6.0095 11.2781 5.6462 11.1521 5.30595C11.0261 4.96569 10.8383 4.65513 10.5993 4.39202C10.3604 4.12891 10.075 3.9184 9.75941 3.77251C9.44385 3.62661 9.10434 3.5482 8.76026 3.54175H4.43359V13.4584H9.10026C9.42769 13.4547 9.75124 13.3825 10.0524 13.246C10.3536 13.1094 10.6265 12.9111 10.8555 12.6625C11.0846 12.4139 11.2653 12.1197 11.3874 11.7969C11.5094 11.474 11.5704 11.1288 11.5669 10.7809V10.6959C11.5672 10.2051 11.4355 9.72445 11.1875 9.31038C10.9395 8.89632 10.5855 8.56606 10.1669 8.35841ZM5.76693 4.95841H8.56693C8.85104 4.94907 9.13105 5.03228 9.36938 5.19688C9.60771 5.36147 9.79295 5.59958 9.90026 5.87925C10.0088 6.2531 9.97372 6.65741 9.80258 7.00384C9.63144 7.35026 9.33819 7.61061 8.98693 7.728C8.85051 7.77047 8.70908 7.79194 8.56693 7.79175H5.76693V4.95841ZM8.83359 12.0417H5.76693V9.20841H8.83359C9.11771 9.19907 9.39772 9.28228 9.63604 9.44688C9.87437 9.61147 10.0596 9.84958 10.1669 10.1292C10.2755 10.5031 10.2404 10.9074 10.0693 11.2538C9.89811 11.6003 9.60486 11.8606 9.25359 11.978C9.11718 12.0205 8.97574 12.0419 8.83359 12.0417Z" fill="var(--text-color)"/>
+                                    </svg>
+                                </button>
+                                
+                                <button class="formatting-button" aria-label="Italic">
+                                    <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7.83971 6.37508H9.17305L7.70638 13.4584H6.37305L7.83971 6.37508ZM8.95971 3.54175C8.82786 3.54175 8.69897 3.58329 8.58933 3.66112C8.4797 3.73896 8.39425 3.84958 8.34379 3.97901C8.29334 4.10845 8.28013 4.25087 8.30586 4.38827C8.33158 4.52567 8.39507 4.65189 8.48831 4.75095C8.58154 4.85001 8.70033 4.91747 8.82965 4.9448C8.95897 4.97214 9.09302 4.95811 9.21484 4.9045C9.33665 4.85088 9.44077 4.7601 9.51403 4.64361C9.58728 4.52713 9.62638 4.39018 9.62638 4.25008C9.62638 4.06222 9.55614 3.88205 9.43112 3.74921C9.30609 3.61638 9.13652 3.54175 8.95971 3.54175Z" fill="var(--text-color)"/>
+                                    </svg>
+                                </button>
+                                
+                                <button class="formatting-button" aria-label="Underline">
+                                    <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12.6673 14.1667V15.5834H3.33398V14.1667H12.6673ZM10.6673 9.36071C10.6454 9.8282 10.5148 10.2826 10.2871 10.6834C10.0595 11.0841 9.74203 11.4187 9.363 11.6573C8.98397 11.8958 8.55521 12.0309 8.11506 12.0504C7.6749 12.0699 7.23706 11.9732 6.84065 11.769C6.38374 11.559 5.99626 11.2088 5.72783 10.7634C5.4594 10.3179 5.32227 9.79742 5.33398 9.26862V3.54529H4.00065V9.36071C4.02321 10.0275 4.19322 10.6794 4.49693 11.2634C4.80064 11.8474 5.22951 12.3473 5.74883 12.7225C6.26815 13.0977 6.86332 13.3377 7.48617 13.4231C8.10901 13.5085 8.74203 13.4369 9.33398 13.214C10.1214 12.9352 10.8046 12.3967 11.2841 11.677C11.7637 10.9572 12.0147 10.0937 12.0007 9.21196V3.54529H10.6673V9.36071ZM10.6673 3.54175H12.0007H10.6673ZM5.33398 3.54175H4.00065H5.33398Z" fill="var(--text-color)"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            <div class="block-formatting-group" data-layer="Block">
+                                <button class="formatting-button" aria-label="Align Left">
+                                    <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M2 12.75H6V11.3333H2V12.75ZM2 7.79167V9.20833H10V7.79167H2ZM2 4.25V5.66667H14V4.25H2Z" fill="var(--text-color)"/>
+                                    </svg>
+                                </button>
+                                
+                                <button class="formatting-button" aria-label="Align Center">
+                                    <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 12.75H10V11.3333H6V12.75ZM4 7.79167V9.20833H12V7.79167H4ZM2 4.25V5.66667H14V4.25H2Z" fill="var(--text-color)"/>
+                                    </svg>
+                                </button>
+                                
+                                <button class="formatting-button" aria-label="Bullet List">
+                                    <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1.66602 11.3334H2.99935V11.6876H2.33268V12.3959H2.99935V12.7501H1.66602V13.4584H3.66602V10.6251H1.66602V11.3334ZM2.33268 6.37508H2.99935V3.54175H1.66602V4.25008H2.33268V6.37508ZM1.66602 7.79175H2.86602L1.66602 9.27925V9.91675H3.66602V9.20841H2.46602L3.66602 7.72091V7.08341H1.66602V7.79175ZM4.99935 4.25008V5.66675H14.3327V4.25008H4.99935ZM4.99935 12.7501H14.3327V11.3334H4.99935V12.7501ZM4.99935 9.20841H14.3327V7.79175H4.99935V9.20841Z" fill="var(--text-color)"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="undo-redo-group" data-layer="Undo / Redo">
+                            <button class="undo-redo-button" aria-label="Undo" disabled>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <g opacity="0.25">
+                                        <path d="M10.4 9.4C8.7 9.7 7.2 10.3 5.8 11.4L3 8.5V15.5H10L7.3 12.8C11 10.2 16.1 11 18.8 14.7C19 15 19.2 15.2 19.3 15.5L21.1 14.6C18.9 10.8 14.7 8.7 10.4 9.4Z" fill="black"/>
+                                    </g>
+                                </svg>
+                            </button>
+                            
+                            <button class="undo-redo-button" aria-label="Redo" disabled>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <g opacity="0.25">
+                                        <path d="M13.6 9.4C15.3 9.7 16.8 10.3 18.2 11.4L21 8.5V15.5H14L16.7 12.8C13 10.1 7.9 11 5.3 14.7C5.1 15 4.9 15.2 4.8 15.5L3 14.6C5.1 10.8 9.3 8.7 13.6 9.4Z" fill="black"/>
+                                    </g>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </header>
+                
+                <hr class="title-divider" data-layer="Divider">
+                
+                <div class="note-content-area" data-layer="Content">
+                    <div class="text-area" data-layer="Text Area" contenteditable="true">
+                        <p>This is an example text section. This is an example text section. This is an example text section. This is an example text section. This is an example text section.</p>
+                        <p>&nbsp;</p>
+                        <p>This is an example text section. This is an example text section. This is an example text section. This is an example text section. This is an example text section.</p>
+                        <p>&nbsp;</p>
+                        <p>This is what bullet points look like</p>
+                        <p>This is another one</p>
+                        <p>&nbsp;</p>
+                        <p>This is an example text section. This is an example text section. This is an example text section. This is an example text section. This is an example text section.</p>
+                        <p>&nbsp;</p>
+                        <p>This is an example text section. This is an example text section. This is an example text section. This is an example text section. This is an example text section.</p>
+                        <p>&nbsp;</p>
+                        <p>This is an example text section. This is an example text section. This is an example text section. This is an example text section. This is an example text section.</p>
+                        <p>&nbsp;</p>
+                        <p>This is an example text section. This is an example text section. This is an example text section. This is an example text section. This is an example text section.</p>
+                        <p>&nbsp;</p>
+                        <p>This is an example text section. This is an example text section. This is an example text section. This is an example text section. This is an example text section.</p>
+                        <p>&nbsp;</p>
+                        <p>This is an example text section. This is an example text section. This is an example text section. This is an example text section. This is an example text section.</p>
+                        <p>&nbsp;</p>
+                        <p>When you reach the bottom, this gradient should disappear.</p>
+                    </div>
+                </div>
+            </article>
+            
+            <!-- Info Sidebar (Right Side) -->
+            <aside class="info-sidebar" data-layer="Info Sidebar">
+                
+                <!-- Scales and Tensions Card -->
+                <div class="info-card" data-layer="Related Scales Cards">
+                    <div class="card-title-section" data-layer="Card Title">
+                        <h2 class="card-title">Scales and Tensions</h2>
+                        <hr class="card-divider" data-layer="Divider">
+                    </div>
+                    
+                    <div class="card-content" data-layer="Card Content">
+                        <div class="text-column" data-layer="Text Column 1">
+                            <p>F Phrygian Dominant</p>
+                            <p>F Phrygian b4</p>
+                            <p>F Lydian Dominant</p>
+                        </div>
+                        
+                        <div class="text-column" data-layer="Text Column 2">
+                            <p>Bb Harmonic Minor - 5</p>
+                            <p>Db Harmonic Major - 3</p>
+                            <p>C Melodic Minor - 4</p>
+                        </div>
+                        
+                        <div class="text-column" data-layer="Text Column 3">
+                            <p>b9, b13</p>
+                            <p>b9, #9, b13</p>
+                            <p>9, #11, 13</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Next Chord Card -->
+                <div class="info-card" data-layer="Analysis Page Card">
+                    <div class="card-title-section" data-layer="Card Title">
+                        <h2 class="card-title">Next Chord</h2>
+                        <hr class="card-divider" data-layer="Divider">
+                    </div>
+                    
+                    <div class="card-content" data-layer="Card Content">
+                        <div class="text-column" data-layer="Text Column 1">
+                            <p>Bb</p>
+                            <p>Bb -</p>
+                            <p>E7</p>
+                        </div>
+                        
+                        <div class="text-column" data-layer="Text Column 2">
+                            <p>F Phrygian Dominant</p>
+                            <p>F Mixolydian b6</p>
+                            <p>F Lydian Dominant</p>
+                        </div>
+                        
+                        <div class="text-column" data-layer="Text Column 3">
+                            <p>Bb Harmonic Minor - 5</p>
+                            <p>Bb Melodic Minor - 5</p>
+                            <p>C Melodic Minor -4</p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </section>
+        
+        </main>
+        
+        <!-- 
+        ========================================================================
+        FOOTER - Info Cards Section
+        Type: Bottom panel with three information cards
+        ========================================================================
+        -->
+        <footer class="info-cards-section" data-layer="Info Cards">
+            
+            <div class="cards-wrapper">
+            
+            <!-- Scales and Tensions Card (Dark Theme) -->
+            <article class="info-card dark scales-tensions-card" data-layer="Related Scales Cards">
+                <header class="card-title-section" data-layer="Card Title">
+                    <h2 class="card-title" data-layer="TITLE">Scales and Tensions</h2>
+                    <hr class="card-divider" data-layer="Divider">
+                </header>
+                
+                <div class="card-content" data-layer="Card Content">
+                    <div class="text-column" data-layer="Text Column 1">
+                        <div class="text-item nowrap">Phrygian Dominant</div>
+                        <div class="text-item nowrap">Phrygian b4</div>
+                        <div class="text-item nowrap">Lydian Dominant</div>
+                    </div>
+                    
+                    <div class="text-column" data-layer="Text Column 2">
+                        <div class="text-item wrap">Harmonic Minor</div>
+                        <div class="text-item wrap">Harmonic Major</div>
+                        <div class="text-item wrap">Melodic Minor</div>
+                    </div>
+                    
+                    <div class="text-column" data-layer="Text Column 3">
+                        <div class="text-item wrap">b9, #9, b13</div>
+                        <div class="text-item wrap">9, b13</div>
+                        <div class="text-item wrap">#11, 13</div>
+                    </div>
+                </div>
+            </article>
+            
+            <!-- History Card (Light Theme) -->
+            <article class="info-card light history-card" data-layer="History Cards">
+                <header class="card-title-section" data-layer="Card Title">
+                    <h2 class="card-title" data-layer="TITLE">History</h2>
+                    <hr class="card-divider" data-layer="Divider">
+                </header>
+                
+                <div class="card-content" data-layer="Card Content">
+                    <div class="text-column" data-layer="Text Column 1">
+                        <div class="text-item nowrap">All The Things You Are</div>
+                        <div class="text-item nowrap">II - V - I Practice</div>
+                        <div class="text-item nowrap">Autumn Leaves</div>
+                    </div>
+                    
+                    <div class="text-column" data-layer="Text Column 2">
+                        <div class="text-item wrap">ii-V-i in C Minor</div>
+                        <div class="text-item wrap">Dm7 - G7 - Cmaj7</div>
+                        <div class="text-item wrap">Modal interchange</div>
+                    </div>
+                    
+                    <div class="text-column" data-layer="Text Column 3">
+                        <div class="text-item wrap">3 days ago</div>
+                        <div class="text-item wrap">1 week ago</div>
+                        <div class="text-item wrap">2 weeks ago</div>
+                    </div>
+                </div>
+            </article>
+            
+            <!-- Next Chord Card (Dark Theme) -->
+            <article class="info-card dark next-chord-card" data-layer="Analysis Page Card">
+                <header class="card-title-section" data-layer="Card Title">
+                    <h2 class="card-title" data-layer="TITLE">Next Chord</h2>
+                    <hr class="card-divider" data-layer="Divider">
+                </header>
+                
+                <div class="card-content" data-layer="Card Content">
+                    <div class="text-column" data-layer="Text Column 1">
+                        <div class="text-item nowrap">Cmaj7</div>
+                        <div class="text-item nowrap">Fm7</div>
+                        <div class="text-item nowrap">Bbm7</div>
+                    </div>
+                    
+                    <div class="text-column" data-layer="Text Column 2">
+                        <div class="text-item wrap">I in C Major</div>
+                        <div class="text-item wrap">ii in Eb Major</div>
+                        <div class="text-item wrap">ii in Ab Major</div>
+                    </div>
+                    
+                    <div class="text-column" data-layer="Text Column 3">
+                        <div class="text-item wrap">Lydian</div>
+                        <div class="text-item wrap">Dorian</div>
+                        <div class="text-item wrap">Dorian</div>
+                    </div>
+                </div>
+            </article>
+            
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+        // Read URL parameters and populate note title if coming from create session
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionName = urlParams.get('sessionName');
+        const keySignature = urlParams.get('keySignature');
+        
+        if (sessionName) {
+            // Update the note title
+            const noteTitle = document.querySelector('.note-title');
+            if (noteTitle) {
+                noteTitle.textContent = sessionName;
+            }
+            
+            // Optionally, you can also use the keySignature if needed
+            // For example, update some other element or store it for later use
+            if (keySignature) {
+                console.log('Session created with key signature:', keySignature);
+                // You could store this in a data attribute or use it elsewhere
+            }
+            
+            // Automatically activate the note-taking view
+            const noteTakingSection = document.querySelector('.note-taking-section');
+            const infoCardsSection = document.querySelector('.info-cards-section');
+            
+            if (noteTakingSection && infoCardsSection) {
+                infoCardsSection.classList.add('notes-active');
+                noteTakingSection.classList.add('active');
+            }
+        }
+        
+        // Menu navigation state management
+        const menuState = {
+            view: 'primary', // primary, secondary, tertiary
+            activeMenu: null,
+            activeSecondary: null,
+            history: []
+        };
+        
+        const analysisMenu = document.querySelector('.analysis-menu');
+        const activeMenuHeader = document.querySelector('.active-menu-header');
+        const breadcrumbPrimary = document.querySelector('[data-breadcrumb-primary]');
+        const breadcrumbSecondary = document.querySelector('[data-breadcrumb-secondary]');
+        const menuViews = {
+            primary: analysisMenu.querySelector('.primary-menu-view'),
+            secondary: analysisMenu.querySelector('.secondary-menu-view'),
+            tertiary: analysisMenu.querySelector('.tertiary-menu-view')
+        };
+        
+        Object.values(menuViews).forEach(view => {
+            if (!view) return;
+            view.addEventListener('animationend', () => {
+                view.classList.remove('menu-view-animate');
+            });
+        });
+        
+        // Primary menu items
+        const primaryMenuItems = document.querySelectorAll('[data-menu-id]');
+        primaryMenuItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // Update active state
+                primaryMenuItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                secondaryMenuItems.forEach(i => i.classList.remove('active'));
+                tertiaryMenuItems.forEach(i => i.classList.remove('active'));
+                
+                // Navigate to secondary view
+                const previousView = menuState.view;
+                menuState.activeMenu = this.textContent;
+                menuState.view = 'secondary';
+                menuState.history = [previousView];
+                
+                updateMenuView(previousView);
+            });
+        });
+        
+        // Secondary menu items
+        const secondaryMenuItems = document.querySelectorAll('[data-secondary-item]');
+        secondaryMenuItems.forEach(item => {
+            item.addEventListener('click', function() {
+                secondaryMenuItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                tertiaryMenuItems.forEach(i => i.classList.remove('active'));
+                
+                // Navigate to tertiary view
+                const previousView = menuState.view;
+                menuState.activeSecondary = this.textContent;
+                menuState.view = 'tertiary';
+                menuState.history.push(previousView);
+                
+                updateMenuView(previousView);
+            });
+        });
+        
+        // Tertiary menu items (leaf nodes - could trigger content updates)
+        const tertiaryMenuItems = document.querySelectorAll('[data-tertiary-item]');
+        tertiaryMenuItems.forEach(item => {
+            item.addEventListener('click', function() {
+                tertiaryMenuItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                console.log('Selected:', menuState.activeMenu, '>', menuState.activeSecondary, '>', this.textContent);
+                // Here you could update the fretboard or other content based on the selection
+            });
+        });
+        
+        function navigateToPrimary() {
+            if (menuState.view === 'primary') {
+                return;
+            }
+            
+            const previousView = menuState.view;
+            menuState.view = 'primary';
+            menuState.history = [];
+            menuState.activeSecondary = null;
+            secondaryMenuItems.forEach(i => i.classList.remove('active'));
+            tertiaryMenuItems.forEach(i => i.classList.remove('active'));
+            
+            updateMenuView(previousView);
+        }
+        
+        function navigateToSecondary() {
+            if (menuState.view === 'secondary') {
+                return;
+            }
+            
+            const previousView = menuState.view;
+            menuState.view = 'secondary';
+            menuState.history = ['primary'];
+            tertiaryMenuItems.forEach(i => i.classList.remove('active'));
+            
+            updateMenuView(previousView);
+        }
+        
+        function goBack() {
+            if (menuState.view === 'tertiary') {
+                navigateToSecondary();
+            } else if (menuState.view === 'secondary') {
+                navigateToPrimary();
+            }
+        }
+        
+        // Update menu view based on state
+        function updateMenuView(previousView) {
+            analysisMenu.setAttribute('data-view', menuState.view);
+            
+            // Update breadcrumb text
+            if (menuState.view === 'secondary') {
+                const activeMenuTitle = document.querySelector('[data-active-menu]');
+                activeMenuTitle.textContent = menuState.activeMenu;
+            } else if (menuState.view === 'tertiary') {
+                if (breadcrumbPrimary) {
+                    breadcrumbPrimary.textContent = menuState.activeMenu;
+                }
+                if (breadcrumbSecondary) {
+                    breadcrumbSecondary.textContent = menuState.activeSecondary;
+                }
+            }
+            
+            triggerMenuViewAnimation(previousView);
+        }
+        
+        function triggerMenuViewAnimation(previousView) {
+            const enteringView = menuViews[menuState.view];
+            if (enteringView) {
+                enteringView.classList.remove('menu-view-animate');
+                void enteringView.offsetWidth; // Force reflow to restart animation
+                enteringView.classList.add('menu-view-animate');
+            }
+            
+            if (previousView) {
+                const leavingView = menuViews[previousView];
+                if (leavingView) {
+                    leavingView.classList.remove('menu-view-animate');
+                }
+            }
+        }
+        
+        function attachAction(element, handler) {
+            if (!element || typeof handler !== 'function') return;
+            element.setAttribute('role', 'button');
+            element.setAttribute('tabindex', '0');
+            element.addEventListener('click', handler);
+            element.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    handler(event);
+                }
+            });
+        }
+        
+        attachAction(activeMenuHeader, goBack);
+        attachAction(breadcrumbPrimary, navigateToPrimary);
+        attachAction(breadcrumbSecondary, navigateToSecondary);
+        
+        // Toggle switches functionality
+        const toggles = document.querySelectorAll('.toggle-background');
+        toggles.forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const indicator = this.querySelector('.toggle-indicator');
+                const isActive = this.classList.contains('active');
+                
+                if (isActive) {
+                    this.classList.remove('active');
+                    indicator.style.right = '3px';
+                    indicator.style.left = 'auto';
+                } else {
+                    this.classList.add('active');
+                    indicator.style.left = '3px';
+                    indicator.style.right = 'auto';
+                }
+            });
+        });
+        
+        // Library button toggle functionality - switches between analysis and note-taking view
+        const libraryButton = document.querySelector('.library-button');
+        const noteTakingSection = document.querySelector('.note-taking-section');
+        const infoCardsSection = document.querySelector('.info-cards-section');
+        
+        let notesActive = false;
+        
+        libraryButton.addEventListener('click', function() {
+            notesActive = !notesActive;
+            
+            if (notesActive) {
+                // Show notes, hide footer cards (keep fretboard and analysis menu visible)
+                infoCardsSection.classList.add('notes-active');
+                noteTakingSection.classList.add('active');
+                infoToggle.classList.add('visible');
+            } else {
+                // Show footer cards, hide notes
+                infoCardsSection.classList.remove('notes-active');
+                noteTakingSection.classList.remove('active');
+                infoToggle.classList.remove('visible');
+            }
+        });
+        
+        // Formatting buttons functionality
+        const formattingButtons = document.querySelectorAll('.formatting-button');
+        formattingButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const label = this.getAttribute('aria-label');
+                console.log(`${label} formatting applied`);
+                // Add actual formatting logic here based on contenteditable
+            });
+        });
+        
+        // Info toggle functionality - controls visibility of info sidebar
+        const infoToggle = document.querySelector('[data-layer="Info Toggle Component"]');
+        const infoToggleBackground = infoToggle.querySelector('.toggle-background');
+        const infoToggleIndicator = infoToggle.querySelector('.toggle-indicator');
+        const infoSidebar = document.querySelector('.info-sidebar');
+        
+        let infoSidebarVisible = false; // Hidden by default
+        
+        // Set initial state
+        infoSidebar.classList.add('hidden');
+        infoToggleIndicator.style.left = '3px';
+        infoToggleIndicator.style.right = 'auto';
+        
+        infoToggleBackground.addEventListener('click', function() {
+            infoSidebarVisible = !infoSidebarVisible;
+            
+            if (infoSidebarVisible) {
+                // Show info sidebar
+                infoSidebar.classList.remove('hidden');
+                infoToggle.setAttribute('data-toggled', 'True');
+                infoToggleIndicator.style.right = '3px';
+                infoToggleIndicator.style.left = 'auto';
+            } else {
+                // Hide info sidebar
+                infoSidebar.classList.add('hidden');
+                infoToggle.setAttribute('data-toggled', 'False');
+                infoToggleIndicator.style.left = '3px';
+                infoToggleIndicator.style.right = 'auto';
+            }
+        });
+        
+        // Home button functionality - redirects to index.html
+        const homeButton = document.querySelector('.home-button');
+        homeButton.addEventListener('click', function() {
+            window.location.href = 'index.html';
+        });
+    </script>
+
+    <!-- SVG Filters and Gradients for Fretboard -->
+    <svg aria-hidden="true" focusable="false" style="position: absolute; width: 0; height: 0; overflow: hidden;">
+        <defs>
+            <filter id="filter_dot" x="-1" y="-1" width="24" height="24" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                <feOffset dx="1" dy="1"/>
+                <feGaussianBlur stdDeviation="1.5"/>
+                <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+                <feColorMatrix type="matrix" values="0 0 0 0 0.219608 0 0 0 0 0.215686 0 0 0 0 0.215686 0 0 0 0.9 0"/>
+                <feBlend mode="normal" in2="shape" result="effect1_innerShadow"/>
+                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                <feOffset dx="-1" dy="-1"/>
+                <feGaussianBlur stdDeviation="1"/>
+                <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+                <feColorMatrix type="matrix" values="0 0 0 0 0.878431 0 0 0 0 0.866667 0 0 0 0 0.866667 0 0 0 0.9 0"/>
+                <feBlend mode="normal" in2="effect1_innerShadow" result="effect2_innerShadow"/>
+                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                <feOffset dx="1" dy="-1"/>
+                <feGaussianBlur stdDeviation="1"/>
+                <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+                <feColorMatrix type="matrix" values="0 0 0 0 0.219608 0 0 0 0 0.215686 0 0 0 0 0.215686 0 0 0 0.2 0"/>
+                <feBlend mode="normal" in2="effect2_innerShadow" result="effect3_innerShadow"/>
+                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                <feOffset dx="-1" dy="1"/>
+                <feGaussianBlur stdDeviation="1"/>
+                <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+                <feColorMatrix type="matrix" values="0 0 0 0 0.219608 0 0 0 0 0.215686 0 0 0 0 0.215686 0 0 0 0.2 0"/>
+                <feBlend mode="normal" in2="effect3_innerShadow" result="effect4_innerShadow"/>
+            </filter>
+            <linearGradient id="fret_gradient" x1="2" y1="91" x2="0" y2="91" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#3C3C3C" stop-opacity="0"/>
+                <stop offset="0.07" stop-color="#1E1E1E"/>
+                <stop offset="0.25" stop-color="#454545"/>
+                <stop offset="0.5" stop-color="#5B5B5B"/>
+                <stop offset="0.75" stop-color="#454545"/>
+                <stop offset="0.927885" stop-color="#1E1E1E"/>
+                <stop offset="1" stop-color="#3C3C3C" stop-opacity="0"/>
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <!-- Note Marker Template -->
+    <template id="note-marker-template">
+        <button type="button" class="note-marker__button" aria-pressed="false">
+            <span class="note-marker__layer note-marker__circle"></span>
+            <span class="note-marker__layer note-marker__svg note-marker__svg--hover">
+                <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g opacity="0.77" filter="url(#note-marker-hover-shadow)">
+                        <circle cx="15" cy="15" r="12.5" fill="#A67B7B" shape-rendering="geometricPrecision"/>
+                    </g>
+                    <defs>
+                        <filter id="note-marker-hover-shadow" x="0" y="0" width="30" height="30" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                            <feOffset dy="1"/>
+                            <feGaussianBlur stdDeviation="1.25"/>
+                            <feComposite in2="hardAlpha" operator="out"/>
+                            <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.88 0"/>
+                            <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_hover"/>
+                            <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_hover" result="shape"/>
+                        </filter>
+                    </defs>
+                </svg>
+            </span>
+            <span class="note-marker__layer note-marker__svg note-marker__svg--selected">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g filter="url(#note-marker-selected-shadow)">
+                        <circle cx="16" cy="16" r="12.5" fill="#A67B7B" shape-rendering="geometricPrecision"/>
+                        <circle cx="16" cy="16" r="12" stroke="#AA6F6F" shape-rendering="geometricPrecision"/>
+                    </g>
+                    <defs>
+                        <filter id="note-marker-selected-shadow" x="0" y="0" width="32" height="32" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                            <feOffset dy="1"/>
+                            <feGaussianBlur stdDeviation="2"/>
+                            <feComposite in2="hardAlpha" operator="out"/>
+                            <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                            <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_selected"/>
+                            <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_selected" result="shape"/>
+                        </filter>
+                    </defs>
+                </svg>
+            </span>
+            <span class="note-marker__layer note-marker__text"></span>
+        </button>
+    </template>
+
+    <!-- Fret Column Template -->
+    <template id="fret-column-template">
+        <div class="fret-column__inner">
+            <div class="fret-column__note-layer"></div>
+            <div class="TopDot" hidden>
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g filter="url(#filter_dot)">
+                        <circle cx="11" cy="11" r="11" fill="#8C8A8A"/>
+                    </g>
+                </svg>
+            </div>
+            <div class="CenterDot" hidden>
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g filter="url(#filter_dot)">
+                        <circle cx="11" cy="11" r="11" fill="#8C8A8A"/>
+                    </g>
+                </svg>
+            </div>
+            <div class="BottomDot" hidden>
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g filter="url(#filter_dot)">
+                        <circle cx="11" cy="11" r="11" fill="#8C8A8A"/>
+                    </g>
+                </svg>
+            </div>
+            <div class="FretMarker">
+                <svg viewBox="0 0 2 182" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                    <path d="M2 182H0L0 0L2 0L2 182Z" fill="url(#fret_gradient)" style="mix-blend-mode:difference"/>
+                </svg>
+            </div>
+        </div>
+    </template>
+
+    <!-- Fretboard JavaScript (Custom Elements and Note Mapping) -->
+    <script>
+        const DEFAULT_STRINGS = ['High E', 'B', 'G', 'D', 'A', 'Low E'];
+        const STRING_SELECTOR_MAP = {
+            'High E': '.string-1',
+            'B': '.string-2',
+            'G': '.string-3',
+            'D': '.string-4',
+            'A': '.string-5',
+            'Low E': '.string-6'
+        };
+        const DEFAULT_STRING_POSITIONS = {
+            'High E': 'calc(7.69% + max(0.5px, 0.23vh))',
+            'B': 'calc(24.12% + max(0.75px, 0.34vh))',
+            'G': 'calc(40.55% + max(1px, 0.455vh))',
+            'D': 'calc(57.26% + max(1px, 0.455vh))',
+            'A': 'calc(73.69% + max(1.25px, 0.57vh))',
+            'Low E': 'calc(90.76% + max(1.5px, 0.685vh))'
+        };
+        let computedStringPositions = { ...DEFAULT_STRING_POSITIONS };
+        let fretboardResizeObserver = null;
+
+        function getStringPosition(stringName) {
+            return computedStringPositions[stringName] ?? DEFAULT_STRING_POSITIONS[stringName];
+        }
+
+        function updateStringPositions() {
+            const fretboard = document.querySelector('.guitar-fretboard');
+            if (!fretboard) {
+                return;
+            }
+
+            const boardRect = fretboard.getBoundingClientRect();
+            if (!boardRect.width || !boardRect.height) {
+                return;
+            }
+
+            Object.entries(STRING_SELECTOR_MAP).forEach(([name, selector]) => {
+                const stringElement = fretboard.querySelector(selector);
+                if (!stringElement) {
+                    return;
+                }
+
+                const svgElement = stringElement.querySelector('svg');
+                const pathElement = svgElement ? svgElement.querySelector('path') : null;
+                const target = pathElement || svgElement || stringElement;
+                const rect = target.getBoundingClientRect();
+                if (!rect.width || !rect.height) {
+                    return;
+                }
+
+                const stringHeight = stringElement.offsetHeight || rect.height;
+                const visualAdjustment = stringHeight ? Math.min(stringHeight * 0.45 + 2.5, 6) : 2.5;
+                const centerOffset = ((rect.top + rect.height / 2) - boardRect.top) - visualAdjustment;
+                computedStringPositions[name] = `${centerOffset}px`;
+            });
+
+            NoteMarker.instances.forEach(marker => marker.render());
+        }
+
+        class NoteMarker extends HTMLElement {
+            static template = document.getElementById('note-marker-template');
+            static instances = new Set();
+            static noteMapping = {};
+
+            constructor() {
+                super();
+                this.handleClick = this.handleClick.bind(this);
+            }
+
+            static get observedAttributes() {
+                return ['string', 'fret', 'label', 'selected'];
+            }
+
+            static setNoteMapping(mapping) {
+                NoteMarker.noteMapping = { ...mapping };
+                NoteMarker.instances.forEach(marker => marker.render());
+            }
+
+            connectedCallback() {
+                if (!this.querySelector('.note-marker__button')) {
+                    const content = NoteMarker.template.content.cloneNode(true);
+                    this.appendChild(content);
+                }
+
+                this.button = this.querySelector('.note-marker__button');
+                this.textElement = this.querySelector('.note-marker__text');
+
+                this.button.removeEventListener('click', this.handleClick);
+                this.button.addEventListener('click', this.handleClick);
+
+                NoteMarker.instances.add(this);
+                this.render();
+            }
+
+            disconnectedCallback() {
+                this.button?.removeEventListener('click', this.handleClick);
+                NoteMarker.instances.delete(this);
+            }
+
+            attributeChangedCallback() {
+                this.render();
+            }
+
+            get string() {
+                return this.getAttribute('string') || '';
+            }
+
+            set string(value) {
+                if (value === null || value === undefined || value === '') {
+                    this.removeAttribute('string');
+                } else {
+                    this.setAttribute('string', value);
+                }
+            }
+
+            get fret() {
+                return this.getAttribute('fret') || '';
+            }
+
+            set fret(value) {
+                if (value === null || value === undefined || value === '') {
+                    this.removeAttribute('fret');
+                } else {
+                    this.setAttribute('fret', value);
+                }
+            }
+
+            get label() {
+                return this.getAttribute('label') || '';
+            }
+
+            set label(value) {
+                if (value === null || value === undefined || value === '') {
+                    this.removeAttribute('label');
+                } else {
+                    this.setAttribute('label', value);
+                }
+            }
+
+            get selected() {
+                return this.hasAttribute('selected');
+            }
+
+            set selected(value) {
+                if (value) {
+                    this.setAttribute('selected', '');
+                } else {
+                    this.removeAttribute('selected');
+                }
+            }
+
+            handleClick(event) {
+                event.preventDefault();
+                this.selected = !this.selected;
+                this.render();
+            }
+
+            getCalculatedNote() {
+                const stringName = this.string;
+                const fretNumber = this.fret;
+
+                if (stringName && fretNumber) {
+                    const key = `${stringName}-${Number(fretNumber)}`;
+                    if (NoteMarker.noteMapping[key]) {
+                        return NoteMarker.noteMapping[key];
+                    }
+                }
+
+                return this.label || this.string || '';
+            }
+
+            render() {
+                if (!this.button || !this.textElement) {
+                    return;
+                }
+
+                const note = this.getCalculatedNote();
+                this.textElement.textContent = note;
+                this.button.setAttribute('aria-pressed', this.selected ? 'true' : 'false');
+
+                if (this.string) {
+                    this.button.dataset.string = this.string;
+                } else {
+                    delete this.button.dataset.string;
+                }
+
+                if (this.fret) {
+                    this.button.dataset.fret = this.fret;
+                } else {
+                    delete this.button.dataset.fret;
+                }
+
+                const parts = [note];
+                if (this.string) {
+                    parts.push(`${this.string} string`);
+                }
+                if (this.fret) {
+                    parts.push(`fret ${this.fret}`);
+                }
+
+                const title = parts.filter(Boolean).join(' • ');
+                if (title) {
+                    this.button.title = title;
+                    this.button.setAttribute('aria-label', title);
+                } else {
+                    this.button.removeAttribute('title');
+                    this.button.removeAttribute('aria-label');
+                }
+
+                if (this.string) {
+                    const position = getStringPosition(this.string);
+                    if (position !== undefined) {
+                        this.style.top = position;
+                    }
+                }
+            }
+        }
+
+        class FretColumn extends HTMLElement {
+            static template = document.getElementById('fret-column-template');
+
+            static get observedAttributes() {
+                return ['fret', 'fret-type', 'strings', 'selected-strings'];
+            }
+
+            constructor() {
+                super();
+                this.noteLayer = null;
+                this.topDot = null;
+                this.centerDot = null;
+                this.bottomDot = null;
+            }
+
+            connectedCallback() {
+                if (!this.querySelector('.fret-column__inner')) {
+                    const content = FretColumn.template.content.cloneNode(true);
+                    this.appendChild(content);
+                }
+
+                this.noteLayer = this.querySelector('.fret-column__note-layer');
+                this.topDot = this.querySelector('.TopDot');
+                this.centerDot = this.querySelector('.CenterDot');
+                this.bottomDot = this.querySelector('.BottomDot');
+
+                this.render();
+            }
+
+            attributeChangedCallback() {
+                this.render();
+            }
+
+            get fret() {
+                return this.getAttribute('fret') || '';
+            }
+
+            set fret(value) {
+                if (value === null || value === undefined || value === '') {
+                    this.removeAttribute('fret');
+                } else {
+                    this.setAttribute('fret', value);
+                }
+            }
+
+            get fretType() {
+                return this.getAttribute('fret-type') || 'none';
+            }
+
+            set fretType(value) {
+                if (value === null || value === undefined || value === '') {
+                    this.removeAttribute('fret-type');
+                } else {
+                    this.setAttribute('fret-type', value);
+                }
+            }
+
+            get strings() {
+                const raw = this.getAttribute('strings');
+                if (!raw) {
+                    return DEFAULT_STRINGS;
+                }
+
+                return raw.split(',').map(value => value.trim()).filter(Boolean);
+            }
+
+            set strings(value) {
+                if (Array.isArray(value)) {
+                    this.setAttribute('strings', value.join(','));
+                } else if (value === null || value === undefined) {
+                    this.removeAttribute('strings');
+                } else {
+                    this.setAttribute('strings', value);
+                }
+            }
+
+            get selectedStrings() {
+                const raw = this.getAttribute('selected-strings');
+                if (!raw) {
+                    return new Set();
+                }
+
+                const values = raw.split(',').map(value => value.trim()).filter(Boolean);
+                return new Set(values);
+            }
+
+            set selectedStrings(value) {
+                if (Array.isArray(value)) {
+                    this.setAttribute('selected-strings', value.join(','));
+                } else if (value instanceof Set) {
+                    this.setAttribute('selected-strings', Array.from(value).join(','));
+                } else if (value === null || value === undefined) {
+                    this.removeAttribute('selected-strings');
+                } else {
+                    this.setAttribute('selected-strings', value);
+                }
+            }
+
+            render() {
+                if (!this.isConnected || !this.noteLayer) {
+                    return;
+                }
+
+                const type = this.fretType;
+                if (this.centerDot) {
+                    this.centerDot.hidden = type !== 'single';
+                }
+                if (this.topDot) {
+                    this.topDot.hidden = type !== 'double';
+                }
+                if (this.bottomDot) {
+                    this.bottomDot.hidden = type !== 'double';
+                }
+
+                this.noteLayer.innerHTML = '';
+
+                const strings = this.strings;
+                const selectedStrings = this.selectedStrings;
+                const fretValue = this.fret;
+
+                strings.forEach((stringName, index) => {
+                    const marker = document.createElement('note-marker');
+                    marker.string = stringName;
+                    if (fretValue) {
+                        marker.fret = fretValue;
+                    }
+                    marker.label = '--';
+                    marker.style.pointerEvents = 'auto';
+                    marker.style.setProperty('--string-index', index);
+                    marker.selected = selectedStrings.has(stringName);
+                    this.noteLayer.appendChild(marker);
+                });
+            }
+        }
+
+        customElements.define('note-marker', NoteMarker);
+        customElements.define('fret-column', FretColumn);
+
+        const fretboardElement = document.querySelector('.guitar-fretboard');
+        if (fretboardElement) {
+            if (typeof ResizeObserver === 'function') {
+                fretboardResizeObserver = new ResizeObserver(() => updateStringPositions());
+                fretboardResizeObserver.observe(fretboardElement);
+            }
+
+            window.addEventListener('resize', updateStringPositions);
+
+            requestAnimationFrame(() => {
+                updateStringPositions();
+            });
+        }
+
+        const noteData = [{"String":"Low E","Fret":1,"Note":"F"},{"String":"Low E","Fret":2,"Note":"F#"},{"String":"Low E","Fret":3,"Note":"G"},{"String":"Low E","Fret":4,"Note":"G#"},{"String":"Low E","Fret":5,"Note":"A"},{"String":"Low E","Fret":6,"Note":"A#"},{"String":"Low E","Fret":7,"Note":"B"},{"String":"Low E","Fret":8,"Note":"C"},{"String":"Low E","Fret":9,"Note":"C#"},{"String":"Low E","Fret":10,"Note":"D"},{"String":"Low E","Fret":11,"Note":"D#"},{"String":"Low E","Fret":12,"Note":"E"},{"String":"Low E","Fret":13,"Note":"F"},{"String":"Low E","Fret":14,"Note":"F#"},{"String":"Low E","Fret":15,"Note":"G"},{"String":"A","Fret":1,"Note":"A#"},{"String":"A","Fret":2,"Note":"B"},{"String":"A","Fret":3,"Note":"C"},{"String":"A","Fret":4,"Note":"C#"},{"String":"A","Fret":5,"Note":"D"},{"String":"A","Fret":6,"Note":"D#"},{"String":"A","Fret":7,"Note":"E"},{"String":"A","Fret":8,"Note":"F"},{"String":"A","Fret":9,"Note":"F#"},{"String":"A","Fret":10,"Note":"G"},{"String":"A","Fret":11,"Note":"G#"},{"String":"A","Fret":12,"Note":"A"},{"String":"A","Fret":13,"Note":"A#"},{"String":"A","Fret":14,"Note":"B"},{"String":"A","Fret":15,"Note":"C"},{"String":"D","Fret":1,"Note":"D#"},{"String":"D","Fret":2,"Note":"E"},{"String":"D","Fret":3,"Note":"F"},{"String":"D","Fret":4,"Note":"F#"},{"String":"D","Fret":5,"Note":"G"},{"String":"D","Fret":6,"Note":"G#"},{"String":"D","Fret":7,"Note":"A"},{"String":"D","Fret":8,"Note":"A#"},{"String":"D","Fret":9,"Note":"B"},{"String":"D","Fret":10,"Note":"C"},{"String":"D","Fret":11,"Note":"C#"},{"String":"D","Fret":12,"Note":"D"},{"String":"D","Fret":13,"Note":"D#"},{"String":"D","Fret":14,"Note":"E"},{"String":"D","Fret":15,"Note":"F"},{"String":"G","Fret":1,"Note":"G#"},{"String":"G","Fret":2,"Note":"A"},{"String":"G","Fret":3,"Note":"A#"},{"String":"G","Fret":4,"Note":"B"},{"String":"G","Fret":5,"Note":"C"},{"String":"G","Fret":6,"Note":"C#"},{"String":"G","Fret":7,"Note":"D"},{"String":"G","Fret":8,"Note":"D#"},{"String":"G","Fret":9,"Note":"E"},{"String":"G","Fret":10,"Note":"F"},{"String":"G","Fret":11,"Note":"F#"},{"String":"G","Fret":12,"Note":"G"},{"String":"G","Fret":13,"Note":"G#"},{"String":"G","Fret":14,"Note":"A"},{"String":"G","Fret":15,"Note":"A#"},{"String":"B","Fret":1,"Note":"C"},{"String":"B","Fret":2,"Note":"C#"},{"String":"B","Fret":3,"Note":"D"},{"String":"B","Fret":4,"Note":"D#"},{"String":"B","Fret":5,"Note":"E"},{"String":"B","Fret":6,"Note":"F"},{"String":"B","Fret":7,"Note":"F#"},{"String":"B","Fret":8,"Note":"G"},{"String":"B","Fret":9,"Note":"G#"},{"String":"B","Fret":10,"Note":"A"},{"String":"B","Fret":11,"Note":"A#"},{"String":"B","Fret":12,"Note":"B"},{"String":"B","Fret":13,"Note":"C"},{"String":"B","Fret":14,"Note":"C#"},{"String":"B","Fret":15,"Note":"D"},{"String":"High E","Fret":1,"Note":"F"},{"String":"High E","Fret":2,"Note":"F#"},{"String":"High E","Fret":3,"Note":"G"},{"String":"High E","Fret":4,"Note":"G#"},{"String":"High E","Fret":5,"Note":"A"},{"String":"High E","Fret":6,"Note":"A#"},{"String":"High E","Fret":7,"Note":"B"},{"String":"High E","Fret":8,"Note":"C"},{"String":"High E","Fret":9,"Note":"C#"},{"String":"High E","Fret":10,"Note":"D"},{"String":"High E","Fret":11,"Note":"D#"},{"String":"High E","Fret":12,"Note":"E"},{"String":"High E","Fret":13,"Note":"F"},{"String":"High E","Fret":14,"Note":"F#"},{"String":"High E","Fret":15,"Note":"G"}];
+
+        const mapping = {};
+        noteData.forEach(entry => {
+            const key = `${entry.String}-${entry.Fret}`;
+            mapping[key] = entry.Note;
+        });
+
+        NoteMarker.setNoteMapping(mapping);
+    </script>
+</body>
+</html>

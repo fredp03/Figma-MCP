@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responsive Guitar Fretboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #EAE9E9;
+      overflow-x: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    .container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      background: #EAE9E9;
+      overflow: hidden;
+      outline: 1px rgba(0, 0, 0, 0.09) solid;
+      outline-offset: -1px;
+    }
+
+    /* Guitar Fretboard - responsive scaling */
+    .GuitarFretboard {
+      /* Width scales maintaining 1672.46:218.92 aspect ratio (7.64:1) */
+      width: clamp(865.93px, 81.75vw, 2114.55px);
+      /* Height calculated from width to maintain 7.64:1 aspect ratio */
+      height: calc(clamp(865.93px, 81.75vw, 2114.55px) / 7.64);
+      /* Keep centered horizontally */
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      /* Top position scales to maintain vertical centering */
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(135deg, #5B5B5B 100%, #535353 0%);
+      box-shadow: 1px 1px 3px rgba(35, 35, 35, 0.90);
+      border-radius: 8px;
+      outline: 1px #585858 solid;
+      outline-offset: -1px;
+    }
+
+    .GuitarStrings {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+      border-bottom-right-radius: 8px;
+      z-index: 10;
+    }
+
+    /* String positions - percentage based for scaling */
+    .String1, .String2, .String3, .String4, .String5, .String6 {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      min-height: 1px;
+    }
+
+    .String1 svg,
+    .String2 svg,
+    .String3 svg,
+    .String4 svg,
+    .String5 svg,
+    .String6 svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      min-height: 1px;
+    }
+
+    .String1 {
+      top: 7.69%; /* 16.84 / 218.92 * 100 */
+      min-height: 1px;
+      height: max(1px, 0.46vh);
+    }
+
+    .String2 {
+      top: 24.12%; /* 52.81 / 218.92 * 100 */
+      min-height: 1px;
+      height: max(1.5px, 0.68vh);
+    }
+
+    .String3 {
+      top: 40.55%; /* 88.77 / 218.92 * 100 */
+      min-height: 1px;
+      height: max(2px, 0.91vh);
+    }
+
+    .String4 {
+      top: 57.26%; /* 125.34 / 218.92 * 100 */
+      min-height: 1px;
+      height: max(2px, 0.91vh);
+    }
+
+    .String5 {
+      top: 73.69%; /* 161.31 / 218.92 * 100 */
+      min-height: 1px;
+      height: max(2.5px, 1.14vh);
+    }
+
+    .String6 {
+      top: 90.76%; /* 198.72 / 218.92 * 100 */
+      min-height: 1px;
+      height: max(3px, 1.37vh);
+    }
+
+    /* Fret styling - each fret is 6.667% width (15 frets) */
+    [class^="Fret"] {
+      width: 6.667%;
+      height: 100%;
+      position: absolute;
+      top: 0px;
+      outline: 1px #585858 solid;
+      outline-offset: -1px;
+    }
+
+    /* Fret marker (vertical line on right edge) */
+    .FretMarker {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: max(1px, 0.14vw);
+      min-width: 1px;
+      height: 100%;
+    }
+
+    .FretMarker svg {
+      width: 100%;
+      height: 100%;
+      min-width: 1px;
+    }
+
+    /* Center dot positioning */
+    .CenterDot {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      /* Dots scale with fretboard height for better proportions */
+      /* Increased from 0.128 to 0.145 for slightly larger dots */
+      width: clamp(18px, calc(81.75vw / 7.64 * 0.145), 28px);
+      height: clamp(18px, calc(81.75vw / 7.64 * 0.145), 28px);
+    }
+
+    .CenterDot svg,
+    .TopDot svg,
+    .BottomDot svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Top dot (for double dot frets) */
+    .TopDot {
+      position: absolute;
+      left: 50%;
+      top: 25%;
+      transform: translate(-50%, -50%);
+      width: clamp(18px, calc(81.75vw / 7.64 * 0.145), 28px);
+      height: clamp(18px, calc(81.75vw / 7.64 * 0.145), 28px);
+    }
+
+    /* Bottom dot (for double dot frets) */
+    .BottomDot {
+      position: absolute;
+      left: 50%;
+      top: 75%;
+      transform: translate(-50%, -50%);
+      width: clamp(18px, calc(81.75vw / 7.64 * 0.145), 28px);
+      height: clamp(18px, calc(81.75vw / 7.64 * 0.145), 28px);
+    }
+
+    .Fret15 {
+      left: 0%;
+      border-top-left-radius: 8px;
+      border-bottom-left-radius: 8px;
+    }
+
+    .Fret14 { left: 6.667%; }
+    .Fret13 { left: 13.333%; }
+    .Fret12 { left: 20%; }
+    .Fret11 { left: 26.667%; }
+    .Fret10 { left: 33.333%; }
+    .Fret9 { left: 40%; }
+    .Fret8 { left: 46.667%; }
+    .Fret7 { left: 53.333%; }
+    .Fret6 { left: 60%; }
+    .Fret5 { left: 66.667%; }
+    .Fret4 { left: 73.333%; }
+    .Fret3 { left: 80%; }
+    .Fret2 { left: 86.667%; }
+    
+    .Fret1 {
+      left: 93.333%;
+      border-top-right-radius: 8px;
+      border-bottom-right-radius: 8px;
+    }
+
+    fret-column {
+      display: block;
+      height: 100%;
+    }
+
+    .fret-column__inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .fret-column__note-layer {
+      position: absolute;
+      inset: 0;
+      display: block;
+      pointer-events: none;
+    }
+
+    note-marker {
+      position: absolute;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: clamp(18px, calc(81.75vw / 7.64 * 0.145), 28px);
+      height: clamp(18px, calc(81.75vw / 7.64 * 0.145), 28px);
+      display: block;
+      z-index: 15;
+      pointer-events: auto;
+    }
+
+    .note-marker__button {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      border: none;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .note-marker__button:focus-visible {
+      outline: 2px solid #AA6F6F;
+      outline-offset: 2px;
+    }
+
+    .note-marker__layer {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: block;
+    }
+
+    .note-marker__circle {
+      width: 25px;
+      height: 25px;
+      background: #A67B7B;
+      box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 50%;
+      border: 1px #AA6F6F solid;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    note-marker:hover .note-marker__circle,
+    note-marker[selected] .note-marker__circle {
+      opacity: 0;
+    }
+
+    .note-marker__svg {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+
+    .note-marker__svg svg {
+      display: block;
+      overflow: visible;
+    }
+
+    .note-marker__text {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 12px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+      transform: translate(-50%, -54%);
+    }
+
+    note-marker:hover:not([selected]) .note-marker__svg--hover {
+      opacity: 1;
+    }
+
+    note-marker:hover:not([selected]) .note-marker__text {
+      opacity: 1;
+    }
+
+    note-marker[selected] .note-marker__svg--selected {
+      opacity: 1;
+    }
+
+    note-marker[selected] .note-marker__text {
+      opacity: 1;
+    }
+
+    note-marker[selected]:hover .note-marker__svg--hover {
+      opacity: 1;
+    }
+
+    note-marker[selected]:hover .note-marker__svg--selected {
+      opacity: 0;
+    }
+
+    fret-column[data-hide-marker] .FretMarker {
+      display: none;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1662px) {
+      .GuitarFretboard {
+        width: clamp(865.93px, 81.75vw, 1359px);
+      }
+    }
+
+    @media (max-width: 1059px) {
+      .GuitarFretboard {
+        width: 81.75vw;
+        min-width: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="GuitarFretboard">
+      <div class="GuitarStrings">
+        <div class="String1">
+          <svg viewBox="0 0 1440 1" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="width: 100%; display: block;">
+            <path d="M1440 0.000125889L1440 1.00013L-8.74228e-08 1L0 0L1440 0.000125889Z" fill="url(#string1_gradient)"/>
+            <defs>
+              <linearGradient id="string1_gradient" x1="720" y1="6.29444e-05" x2="720" y2="1.00006" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#818181" stop-opacity="0"/>
+                <stop offset="0.0865385" stop-color="#5A5A5A"/>
+                <stop offset="0.384615" stop-color="#7C7C7C"/>
+                <stop offset="0.663462" stop-color="#494949"/>
+                <stop offset="0.903846" stop-color="#5A5A5A"/>
+                <stop offset="1" stop-color="#1B1B1B" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="String2">
+          <svg viewBox="0 0 1440 1.5" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="width: 100%; display: block;">
+            <path d="M1440 0.000125889L1440 1.50013L-1.31134e-07 1.5L0 0L1440 0.000125889Z" fill="url(#string2_gradient)"/>
+            <defs>
+              <linearGradient id="string2_gradient" x1="720" y1="6.29444e-05" x2="720" y2="1.50006" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#818181" stop-opacity="0"/>
+                <stop offset="0.0865385" stop-color="#5A5A5A"/>
+                <stop offset="0.384615" stop-color="#7C7C7C"/>
+                <stop offset="0.663462" stop-color="#494949"/>
+                <stop offset="0.903846" stop-color="#5A5A5A"/>
+                <stop offset="1" stop-color="#1B1B1B" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="String3">
+          <svg viewBox="0 0 1440 2" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="width: 100%; display: block;">
+            <path d="M1440 0.000125889L1440 2.00013L-1.74846e-07 2L0 0L1440 0.000125889Z" fill="url(#string3_gradient)"/>
+            <defs>
+              <linearGradient id="string3_gradient" x1="720" y1="6.29444e-05" x2="720" y2="2.00006" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#818181" stop-opacity="0"/>
+                <stop offset="0.0865385" stop-color="#5A5A5A"/>
+                <stop offset="0.384615" stop-color="#7C7C7C"/>
+                <stop offset="0.663462" stop-color="#494949"/>
+                <stop offset="0.903846" stop-color="#5A5A5A"/>
+                <stop offset="1" stop-color="#1B1B1B" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="String4">
+          <svg viewBox="0 0 1440 2" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="width: 100%; display: block;">
+            <path d="M1440 0.000125889L1440 2.00013L-1.74846e-07 2L0 0L1440 0.000125889Z" fill="url(#string4_gradient)"/>
+            <defs>
+              <linearGradient id="string4_gradient" x1="720" y1="6.29444e-05" x2="720" y2="2.00006" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#818181" stop-opacity="0"/>
+                <stop offset="0.0865385" stop-color="#5A5A5A"/>
+                <stop offset="0.384615" stop-color="#7C7C7C"/>
+                <stop offset="0.663462" stop-color="#494949"/>
+                <stop offset="0.903846" stop-color="#5A5A5A"/>
+                <stop offset="1" stop-color="#1B1B1B" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="String5">
+          <svg viewBox="0 0 1440 2.5" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="width: 100%; display: block;">
+            <path d="M1440 0.000125889L1440 2.50013L-2.18557e-07 2.5L0 0L1440 0.000125889Z" fill="url(#string5_gradient)"/>
+            <defs>
+              <linearGradient id="string5_gradient" x1="720" y1="6.29444e-05" x2="720" y2="2.50006" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#818181" stop-opacity="0"/>
+                <stop offset="0.0865385" stop-color="#5A5A5A"/>
+                <stop offset="0.384615" stop-color="#7C7C7C"/>
+                <stop offset="0.663462" stop-color="#494949"/>
+                <stop offset="0.903846" stop-color="#5A5A5A"/>
+                <stop offset="1" stop-color="#1B1B1B" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="String6">
+          <svg viewBox="0 0 1440 3" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="width: 100%; display: block;">
+            <path d="M1440 0V2.8H0V0H1440Z" fill="url(#string6_gradient)"/>
+            <defs>
+              <linearGradient id="string6_gradient" x1="720" y1="0" x2="720" y2="2.8" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#818181" stop-opacity="0"/>
+                <stop offset="0.0865385" stop-color="#5A5A5A"/>
+                <stop offset="0.384615" stop-color="#7C7C7C"/>
+                <stop offset="0.663462" stop-color="#494949"/>
+                <stop offset="0.903846" stop-color="#5A5A5A"/>
+                <stop offset="1" stop-color="#1B1B1B" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+      
+      <fret-column class="Fret15" fret="15" fret-type="single"></fret-column>
+      <fret-column class="Fret14" fret="14" fret-type="none"></fret-column>
+      <fret-column class="Fret13" fret="13" fret-type="none"></fret-column>
+      <fret-column class="Fret12" fret="12" fret-type="double"></fret-column>
+      <fret-column class="Fret11" fret="11" fret-type="none"></fret-column>
+      <fret-column class="Fret10" fret="10" fret-type="none"></fret-column>
+      <fret-column class="Fret9" fret="9" fret-type="single"></fret-column>
+      <fret-column class="Fret8" fret="8" fret-type="none"></fret-column>
+      <fret-column class="Fret7" fret="7" fret-type="single"></fret-column>
+      <fret-column class="Fret6" fret="6" fret-type="none"></fret-column>
+      <fret-column class="Fret5" fret="5" fret-type="single"></fret-column>
+      <fret-column class="Fret4" fret="4" fret-type="none"></fret-column>
+      <fret-column class="Fret3" fret="3" fret-type="single"></fret-column>
+      <fret-column class="Fret2" fret="2" fret-type="none"></fret-column>
+      <fret-column class="Fret1" fret="1" fret-type="none" data-hide-marker></fret-column>
+    </div>
+  </div>
+
+  <svg aria-hidden="true" focusable="false" style="position: absolute; width: 0; height: 0; overflow: hidden;">
+    <defs>
+      <filter id="filter_dot" x="-1" y="-1" width="24" height="24" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+        <feOffset dx="1" dy="1"/>
+        <feGaussianBlur stdDeviation="1.5"/>
+        <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+        <feColorMatrix type="matrix" values="0 0 0 0 0.219608 0 0 0 0 0.215686 0 0 0 0 0.215686 0 0 0 0.9 0"/>
+        <feBlend mode="normal" in2="shape" result="effect1_innerShadow"/>
+        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+        <feOffset dx="-1" dy="-1"/>
+        <feGaussianBlur stdDeviation="1"/>
+        <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+        <feColorMatrix type="matrix" values="0 0 0 0 0.878431 0 0 0 0 0.866667 0 0 0 0 0.866667 0 0 0 0.9 0"/>
+        <feBlend mode="normal" in2="effect1_innerShadow" result="effect2_innerShadow"/>
+        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+        <feOffset dx="1" dy="-1"/>
+        <feGaussianBlur stdDeviation="1"/>
+        <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+        <feColorMatrix type="matrix" values="0 0 0 0 0.219608 0 0 0 0 0.215686 0 0 0 0 0.215686 0 0 0 0.2 0"/>
+        <feBlend mode="normal" in2="effect2_innerShadow" result="effect3_innerShadow"/>
+        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+        <feOffset dx="-1" dy="1"/>
+        <feGaussianBlur stdDeviation="1"/>
+        <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+        <feColorMatrix type="matrix" values="0 0 0 0 0.219608 0 0 0 0 0.215686 0 0 0 0 0.215686 0 0 0 0.2 0"/>
+        <feBlend mode="normal" in2="effect3_innerShadow" result="effect4_innerShadow"/>
+      </filter>
+      <linearGradient id="fret_gradient" x1="2" y1="91" x2="0" y2="91" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#3C3C3C" stop-opacity="0"/>
+        <stop offset="0.07" stop-color="#1E1E1E"/>
+        <stop offset="0.25" stop-color="#454545"/>
+        <stop offset="0.5" stop-color="#5B5B5B"/>
+        <stop offset="0.75" stop-color="#454545"/>
+        <stop offset="0.927885" stop-color="#1E1E1E"/>
+        <stop offset="1" stop-color="#3C3C3C" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <template id="note-marker-template">
+    <button type="button" class="note-marker__button" aria-pressed="false">
+      <span class="note-marker__layer note-marker__circle"></span>
+      <span class="note-marker__layer note-marker__svg note-marker__svg--hover">
+        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g opacity="0.77" filter="url(#note-marker-hover-shadow)">
+            <circle cx="15" cy="15" r="12.5" fill="#A67B7B" shape-rendering="geometricPrecision"/>
+          </g>
+          <defs>
+            <filter id="note-marker-hover-shadow" x="0" y="0" width="30" height="30" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+              <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+              <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+              <feOffset dy="1"/>
+              <feGaussianBlur stdDeviation="1.25"/>
+              <feComposite in2="hardAlpha" operator="out"/>
+              <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.88 0"/>
+              <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_hover"/>
+              <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_hover" result="shape"/>
+            </filter>
+          </defs>
+        </svg>
+      </span>
+      <span class="note-marker__layer note-marker__svg note-marker__svg--selected">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g filter="url(#note-marker-selected-shadow)">
+            <circle cx="16" cy="16" r="12.5" fill="#A67B7B" shape-rendering="geometricPrecision"/>
+            <circle cx="16" cy="16" r="12" stroke="#AA6F6F" shape-rendering="geometricPrecision"/>
+          </g>
+          <defs>
+            <filter id="note-marker-selected-shadow" x="0" y="0" width="32" height="32" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+              <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+              <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+              <feOffset dy="1"/>
+              <feGaussianBlur stdDeviation="2"/>
+              <feComposite in2="hardAlpha" operator="out"/>
+              <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+              <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_selected"/>
+              <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_selected" result="shape"/>
+            </filter>
+          </defs>
+        </svg>
+      </span>
+      <span class="note-marker__layer note-marker__text"></span>
+    </button>
+  </template>
+
+  <template id="fret-column-template">
+    <div class="fret-column__inner">
+      <div class="fret-column__note-layer"></div>
+      <div class="TopDot" hidden>
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g filter="url(#filter_dot)">
+            <circle cx="11" cy="11" r="11" fill="#8C8A8A"/>
+          </g>
+        </svg>
+      </div>
+      <div class="CenterDot" hidden>
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g filter="url(#filter_dot)">
+            <circle cx="11" cy="11" r="11" fill="#8C8A8A"/>
+          </g>
+        </svg>
+      </div>
+      <div class="BottomDot" hidden>
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g filter="url(#filter_dot)">
+            <circle cx="11" cy="11" r="11" fill="#8C8A8A"/>
+          </g>
+        </svg>
+      </div>
+      <div class="FretMarker">
+        <svg viewBox="0 0 2 182" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+          <path d="M2 182H0L0 0L2 0L2 182Z" fill="url(#fret_gradient)" style="mix-blend-mode:difference"/>
+        </svg>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    const DEFAULT_STRINGS = ['High E', 'B', 'G', 'D', 'A', 'Low E'];
+    const STRING_POSITIONS = {
+      'High E': '7.69%',
+      'B': '24.12%',
+      'G': '40.55%',
+      'D': '57.26%',
+      'A': '73.69%',
+      'Low E': '90.76%'
+    };
+
+    class NoteMarker extends HTMLElement {
+      static template = document.getElementById('note-marker-template');
+      static instances = new Set();
+      static noteMapping = {};
+
+      constructor() {
+        super();
+        this.handleClick = this.handleClick.bind(this);
+      }
+
+      static get observedAttributes() {
+        return ['string', 'fret', 'label', 'selected'];
+      }
+
+      static setNoteMapping(mapping) {
+        NoteMarker.noteMapping = { ...mapping };
+        NoteMarker.instances.forEach(marker => marker.render());
+      }
+
+      connectedCallback() {
+        if (!this.querySelector('.note-marker__button')) {
+          const content = NoteMarker.template.content.cloneNode(true);
+          this.appendChild(content);
+        }
+
+        this.button = this.querySelector('.note-marker__button');
+        this.textElement = this.querySelector('.note-marker__text');
+
+        this.button.removeEventListener('click', this.handleClick);
+        this.button.addEventListener('click', this.handleClick);
+
+        NoteMarker.instances.add(this);
+        this.render();
+      }
+
+      disconnectedCallback() {
+        this.button?.removeEventListener('click', this.handleClick);
+        NoteMarker.instances.delete(this);
+      }
+
+      attributeChangedCallback() {
+        this.render();
+      }
+
+      get string() {
+        return this.getAttribute('string') || '';
+      }
+
+      set string(value) {
+        if (value === null || value === undefined || value === '') {
+          this.removeAttribute('string');
+        } else {
+          this.setAttribute('string', value);
+        }
+      }
+
+      get fret() {
+        return this.getAttribute('fret') || '';
+      }
+
+      set fret(value) {
+        if (value === null || value === undefined || value === '') {
+          this.removeAttribute('fret');
+        } else {
+          this.setAttribute('fret', value);
+        }
+      }
+
+      get label() {
+        return this.getAttribute('label') || '';
+      }
+
+      set label(value) {
+        if (value === null || value === undefined || value === '') {
+          this.removeAttribute('label');
+        } else {
+          this.setAttribute('label', value);
+        }
+      }
+
+      get selected() {
+        return this.hasAttribute('selected');
+      }
+
+      set selected(value) {
+        if (value) {
+          this.setAttribute('selected', '');
+        } else {
+          this.removeAttribute('selected');
+        }
+      }
+
+      handleClick(event) {
+        event.preventDefault();
+        this.selected = !this.selected;
+        this.render();
+      }
+
+      getCalculatedNote() {
+        const stringName = this.string;
+        const fretNumber = this.fret;
+
+        if (stringName && fretNumber) {
+          const key = `${stringName}-${Number(fretNumber)}`;
+          if (NoteMarker.noteMapping[key]) {
+            return NoteMarker.noteMapping[key];
+          }
+        }
+
+        return this.label || this.string || '';
+      }
+
+      render() {
+        if (!this.button || !this.textElement) {
+          return;
+        }
+
+        const note = this.getCalculatedNote();
+        this.textElement.textContent = note;
+        this.button.setAttribute('aria-pressed', this.selected ? 'true' : 'false');
+
+        if (this.string) {
+          this.button.dataset.string = this.string;
+        } else {
+          delete this.button.dataset.string;
+        }
+
+        if (this.fret) {
+          this.button.dataset.fret = this.fret;
+        } else {
+          delete this.button.dataset.fret;
+        }
+
+        const parts = [note];
+        if (this.string) {
+          parts.push(`${this.string} string`);
+        }
+        if (this.fret) {
+          parts.push(`fret ${this.fret}`);
+        }
+
+        const title = parts.filter(Boolean).join(' • ');
+        if (title) {
+          this.button.title = title;
+          this.button.setAttribute('aria-label', title);
+        } else {
+          this.button.removeAttribute('title');
+          this.button.removeAttribute('aria-label');
+        }
+      }
+    }
+
+    class FretColumn extends HTMLElement {
+      static template = document.getElementById('fret-column-template');
+
+      static get observedAttributes() {
+        return ['fret', 'fret-type', 'strings', 'selected-strings'];
+      }
+
+      constructor() {
+        super();
+        this.noteLayer = null;
+        this.topDot = null;
+        this.centerDot = null;
+        this.bottomDot = null;
+      }
+
+      connectedCallback() {
+        if (!this.querySelector('.fret-column__inner')) {
+          const content = FretColumn.template.content.cloneNode(true);
+          this.appendChild(content);
+        }
+
+        this.noteLayer = this.querySelector('.fret-column__note-layer');
+        this.topDot = this.querySelector('.TopDot');
+        this.centerDot = this.querySelector('.CenterDot');
+        this.bottomDot = this.querySelector('.BottomDot');
+
+        this.render();
+      }
+
+      attributeChangedCallback() {
+        this.render();
+      }
+
+      get fret() {
+        return this.getAttribute('fret') || '';
+      }
+
+      set fret(value) {
+        if (value === null || value === undefined || value === '') {
+          this.removeAttribute('fret');
+        } else {
+          this.setAttribute('fret', value);
+        }
+      }
+
+      get fretType() {
+        return this.getAttribute('fret-type') || 'none';
+      }
+
+      set fretType(value) {
+        if (value === null || value === undefined || value === '') {
+          this.removeAttribute('fret-type');
+        } else {
+          this.setAttribute('fret-type', value);
+        }
+      }
+
+      get strings() {
+        const raw = this.getAttribute('strings');
+        if (!raw) {
+          return DEFAULT_STRINGS;
+        }
+
+        return raw.split(',').map(value => value.trim()).filter(Boolean);
+      }
+
+      set strings(value) {
+        if (Array.isArray(value)) {
+          this.setAttribute('strings', value.join(','));
+        } else if (value === null || value === undefined) {
+          this.removeAttribute('strings');
+        } else {
+          this.setAttribute('strings', value);
+        }
+      }
+
+      get selectedStrings() {
+        const raw = this.getAttribute('selected-strings');
+        if (!raw) {
+          return new Set();
+        }
+
+        const values = raw.split(',').map(value => value.trim()).filter(Boolean);
+        return new Set(values);
+      }
+
+      set selectedStrings(value) {
+        if (Array.isArray(value)) {
+          this.setAttribute('selected-strings', value.join(','));
+        } else if (value instanceof Set) {
+          this.setAttribute('selected-strings', Array.from(value).join(','));
+        } else if (value === null || value === undefined) {
+          this.removeAttribute('selected-strings');
+        } else {
+          this.setAttribute('selected-strings', value);
+        }
+      }
+
+      render() {
+        if (!this.isConnected || !this.noteLayer) {
+          return;
+        }
+
+        const type = this.fretType;
+        if (this.centerDot) {
+          this.centerDot.hidden = type !== 'single';
+        }
+        if (this.topDot) {
+          this.topDot.hidden = type !== 'double';
+        }
+        if (this.bottomDot) {
+          this.bottomDot.hidden = type !== 'double';
+        }
+
+        this.noteLayer.innerHTML = '';
+
+        const strings = this.strings;
+        const selectedStrings = this.selectedStrings;
+        const fretValue = this.fret;
+
+        strings.forEach((stringName, index) => {
+          const marker = document.createElement('note-marker');
+          marker.string = stringName;
+          if (fretValue) {
+            marker.fret = fretValue;
+          }
+          marker.label = '--';
+          const position = STRING_POSITIONS[stringName];
+          if (position) {
+            marker.style.top = position;
+          }
+          marker.style.pointerEvents = 'auto';
+          marker.style.setProperty('--string-index', index);
+          marker.selected = selectedStrings.has(stringName);
+          this.noteLayer.appendChild(marker);
+        });
+      }
+    }
+
+    customElements.define('note-marker', NoteMarker);
+    customElements.define('fret-column', FretColumn);
+
+    const noteData = [{"String":"Low E","Fret":1,"Note":"F"},{"String":"Low E","Fret":2,"Note":"F#"},{"String":"Low E","Fret":3,"Note":"G"},{"String":"Low E","Fret":4,"Note":"G#"},{"String":"Low E","Fret":5,"Note":"A"},{"String":"Low E","Fret":6,"Note":"A#"},{"String":"Low E","Fret":7,"Note":"B"},{"String":"Low E","Fret":8,"Note":"C"},{"String":"Low E","Fret":9,"Note":"C#"},{"String":"Low E","Fret":10,"Note":"D"},{"String":"Low E","Fret":11,"Note":"D#"},{"String":"Low E","Fret":12,"Note":"E"},{"String":"Low E","Fret":13,"Note":"F"},{"String":"Low E","Fret":14,"Note":"F#"},{"String":"Low E","Fret":15,"Note":"G"},{"String":"A","Fret":1,"Note":"A#"},{"String":"A","Fret":2,"Note":"B"},{"String":"A","Fret":3,"Note":"C"},{"String":"A","Fret":4,"Note":"C#"},{"String":"A","Fret":5,"Note":"D"},{"String":"A","Fret":6,"Note":"D#"},{"String":"A","Fret":7,"Note":"E"},{"String":"A","Fret":8,"Note":"F"},{"String":"A","Fret":9,"Note":"F#"},{"String":"A","Fret":10,"Note":"G"},{"String":"A","Fret":11,"Note":"G#"},{"String":"A","Fret":12,"Note":"A"},{"String":"A","Fret":13,"Note":"A#"},{"String":"A","Fret":14,"Note":"B"},{"String":"A","Fret":15,"Note":"C"},{"String":"D","Fret":1,"Note":"D#"},{"String":"D","Fret":2,"Note":"E"},{"String":"D","Fret":3,"Note":"F"},{"String":"D","Fret":4,"Note":"F#"},{"String":"D","Fret":5,"Note":"G"},{"String":"D","Fret":6,"Note":"G#"},{"String":"D","Fret":7,"Note":"A"},{"String":"D","Fret":8,"Note":"A#"},{"String":"D","Fret":9,"Note":"B"},{"String":"D","Fret":10,"Note":"C"},{"String":"D","Fret":11,"Note":"C#"},{"String":"D","Fret":12,"Note":"D"},{"String":"D","Fret":13,"Note":"D#"},{"String":"D","Fret":14,"Note":"E"},{"String":"D","Fret":15,"Note":"F"},{"String":"G","Fret":1,"Note":"G#"},{"String":"G","Fret":2,"Note":"A"},{"String":"G","Fret":3,"Note":"A#"},{"String":"G","Fret":4,"Note":"B"},{"String":"G","Fret":5,"Note":"C"},{"String":"G","Fret":6,"Note":"C#"},{"String":"G","Fret":7,"Note":"D"},{"String":"G","Fret":8,"Note":"D#"},{"String":"G","Fret":9,"Note":"E"},{"String":"G","Fret":10,"Note":"F"},{"String":"G","Fret":11,"Note":"F#"},{"String":"G","Fret":12,"Note":"G"},{"String":"G","Fret":13,"Note":"G#"},{"String":"G","Fret":14,"Note":"A"},{"String":"G","Fret":15,"Note":"A#"},{"String":"B","Fret":1,"Note":"C"},{"String":"B","Fret":2,"Note":"C#"},{"String":"B","Fret":3,"Note":"D"},{"String":"B","Fret":4,"Note":"D#"},{"String":"B","Fret":5,"Note":"E"},{"String":"B","Fret":6,"Note":"F"},{"String":"B","Fret":7,"Note":"F#"},{"String":"B","Fret":8,"Note":"G"},{"String":"B","Fret":9,"Note":"G#"},{"String":"B","Fret":10,"Note":"A"},{"String":"B","Fret":11,"Note":"A#"},{"String":"B","Fret":12,"Note":"B"},{"String":"B","Fret":13,"Note":"C"},{"String":"B","Fret":14,"Note":"C#"},{"String":"B","Fret":15,"Note":"D"},{"String":"High E","Fret":1,"Note":"F"},{"String":"High E","Fret":2,"Note":"F#"},{"String":"High E","Fret":3,"Note":"G"},{"String":"High E","Fret":4,"Note":"G#"},{"String":"High E","Fret":5,"Note":"A"},{"String":"High E","Fret":6,"Note":"A#"},{"String":"High E","Fret":7,"Note":"B"},{"String":"High E","Fret":8,"Note":"C"},{"String":"High E","Fret":9,"Note":"C#"},{"String":"High E","Fret":10,"Note":"D"},{"String":"High E","Fret":11,"Note":"D#"},{"String":"High E","Fret":12,"Note":"E"},{"String":"High E","Fret":13,"Note":"F"},{"String":"High E","Fret":14,"Note":"F#"},{"String":"High E","Fret":15,"Note":"G"}];
+
+    const mapping = {};
+    noteData.forEach(entry => {
+      const key = `${entry.String}-${entry.Fret}`;
+      mapping[key] = entry.Note;
+    });
+
+    NoteMarker.setNoteMapping(mapping);
+  </script>
+</body>
+</html>

@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Note Taking Screen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;600&family=Klee+One:wght@600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==========================================================================
+           CSS Variable Definitions - Design System
+           ========================================================================== */
+        :root {
+            --text: #5D4F4E;
+            --text-color: #5D4F4E;
+            --background: #EAE9E9;
+            --secondary: #DDDBD7;
+            --primary: #8C7777;
+            --hyperlink: #BC2F2F;
+        }
+        
+        /* ==========================================================================
+           Typography Scale
+           ========================================================================== */
+        .h1-style {
+            font: 600 23.04px/normal 'Baloo Bhaijaan 2', sans-serif;
+        }
+        
+        .h2-style {
+            font: 400 23.04px/normal 'Baloo Bhaijaan 2', sans-serif;
+        }
+        
+        .h4-style {
+            font: 400 14.81px/normal 'Baloo Bhaijaan 2', sans-serif;
+        }
+        
+        .body-style {
+            font: 600 16px/33px 'Klee One', sans-serif;
+        }
+        
+        .hyperlink-style {
+            font: 600 16px/33px 'Baloo Bhaijaan 2', sans-serif;
+            color: #BC2F2F;
+        }
+        
+        /* ==========================================================================
+           Base Styles
+           ========================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Klee One', sans-serif;
+            color: var(--text);
+            background: #f5f5f5;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        /* ==========================================================================
+           Root Container - Note Taking Screen
+           ========================================================================== */
+        .note-taking-screen {
+            width: 100%;
+            max-width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: var(--background);
+            overflow: hidden;
+            border-radius: 0;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* ==========================================================================
+           Header - Top Menu Bar Component
+           ========================================================================== */
+        .top-menu-bar {
+            width: 100%;
+            height: 5vh;
+            min-height: 60px;
+            max-height: 73px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+            background: var(--background);
+            z-index: 100;
+        }
+        
+        /* Search Bar / Session Name Display */
+        .search-bar {
+            width: min(603px, 28.5%);
+            height: min(47px, 3.2vh);
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 50%;
+            margin-top: calc(-1 * min(47px, 3.2vh) / 2);
+            background: var(--secondary);
+            border-radius: 13px;
+            border: 1px solid rgba(0, 0, 0, 0.07);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .search-text {
+            width: 100%;
+            text-align: center;
+            color: var(--text);
+            font-size: 23.04px;
+            font-family: 'Baloo Bhaijaan 2';
+            font-weight: 600;
+            line-height: 100%;
+            padding: 0 40px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 13.5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 15px;
+            height: 15px;
+        }
+        
+        /* Left Navigation Section */
+        .left-navigation {
+            position: absolute;
+            left: 2.49%;
+            top: 50%;
+            transform: translateY(-50%);
+            height: auto;
+            display: flex;
+            align-items: center;
+            gap: 19px;
+        }
+        
+        .nav-button {
+            padding: 11px 10px;
+            border-radius: 5px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        
+        .nav-button:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Center Action Buttons Section */
+        .center-actions {
+            position: absolute;
+            left: 15.51%;
+            top: 50%;
+            transform: translateY(-50%);
+            height: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .action-button {
+            padding: 11px 14px;
+            border-radius: 5px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        
+        .action-button:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+        .bookmark-button {
+            opacity: 0.80;
+            padding: 19px 14px 11px 14px;
+        }
+        
+        .create-note-button {
+            padding: 10px 14px;
+        }
+        
+        .calendar-button {
+            padding: 19px 14px 11px 14px;
+        }
+        
+        /* Right Toggle Area Section */
+        .right-toggle-area {
+            position: absolute;
+            left: 68.58%;
+            top: 0;
+            right: 0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 2%;
+        }
+        
+        .toggle-component {
+            width: 108px;
+            height: 53px;
+            position: relative;
+            opacity: 0.83;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 100%;
+            height: 32px;
+        }
+        
+        .toggle-background {
+            position: absolute;
+            left: 37.69px;
+            top: 9.78px;
+            width: 32.62px;
+            height: 16.31px;
+            background: var(--primary);
+            border-radius: 8.15px;
+            box-shadow: -1px -1px 2px rgba(50, 50, 50, 0.5),
+                        1px 1px 2px rgba(124, 124, 124, 0.3);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .toggle-indicator {
+            position: absolute;
+            left: 3px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 9.78px;
+            height: 9.78px;
+            background: var(--secondary);
+            border-radius: 50%;
+            box-shadow: 1px 1px 3px rgba(73, 72, 70, 0.9),
+                        1px -1px 2px rgba(73, 72, 70, 0.2),
+                        -1px 1px 2px rgba(73, 72, 70, 0.2),
+                        -1px -1px 2px rgba(73, 72, 70, 0.5),
+                        1px 1px 2px rgba(255, 255, 255, 0.3) inset;
+            transition: transform 0.3s;
+        }
+        
+        .toggle-label {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 108px;
+            text-align: center;
+            color: var(--text-color);
+            font-size: 14.81px;
+            font-family: 'Baloo Bhaijaan 2';
+            font-weight: 400;
+        }
+        
+        /* ==========================================================================
+           Note Taking Section - Main Content Area
+           ========================================================================== */
+        .note-taking-section {
+            width: 94.7%;
+            height: calc(100vh - 5vh - 3vh);
+            max-height: calc(100vh - 73px - 30px);
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: calc(5vh + 2vh);
+            background: var(--secondary);
+            border-radius: 13px;
+            border: 1px solid rgba(0, 0, 0, 0.13);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Title Area */
+        .title-section {
+            width: 96.08%;
+            height: auto;
+            flex-shrink: 0;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+            padding-top: 1%;
+            padding-bottom: 1%;
+        }
+        
+        .note-title {
+            position: relative;
+            left: 0;
+            color: var(--text-color);
+            font-size: min(23.04px, 1.6vw);
+            font-family: 'Baloo Bhaijaan 2';
+            font-weight: 400;
+            margin-bottom: 0.5vh;
+        }
+        
+        /* Options Area (Text Formatting Tools) */
+        .options-area {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: min(32px, 2vw);
+            flex-wrap: wrap;
+            margin-top: 0.5vh;
+        }
+        
+        .text-options-toolbar {
+            display: flex;
+            align-items: flex-start;
+            gap: min(48px, 3vw);
+            flex-wrap: wrap;
+        }
+        
+        .text-formatting-group {
+            display: flex;
+            gap: min(24px, 1.5vw);
+        }
+        
+        .formatting-button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            transition: opacity 0.2s;
+        }
+        
+        .formatting-button:hover {
+            opacity: 0.7;
+        }
+        
+        .formatting-button.disabled {
+            opacity: 0.25;
+        }
+        
+        .block-formatting-group {
+            display: flex;
+            gap: min(24px, 1.5vw);
+        }
+        
+        .undo-redo-group {
+            display: flex;
+            gap: min(24px, 1.5vw);
+        }
+        
+        /* Title Divider */
+        .title-divider {
+            width: 96.08%;
+            height: 1px;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+            flex-shrink: 0;
+            background: var(--text-color);
+            opacity: 0.23;
+            border: none;
+            margin: 1vh 0;
+        }
+        
+        /* Content Area */
+        .content-area {
+            width: 96.08%;
+            flex: 1;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0;
+            justify-content: space-between;
+            overflow: hidden;
+            padding-bottom: 2%;
+        }
+        
+        .text-column {
+            width: 47.33%;
+            height: 100%;
+            overflow-y: auto;
+            color: black;
+            font-size: min(16px, 1.1vw);
+            font-family: 'Klee One';
+            font-weight: 600;
+            line-height: min(33px, 2.3vw);
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            padding-right: 1%;
+        }
+        
+        .column-divider {
+            width: 1px;
+            height: 100%;
+            background: black;
+            flex-shrink: 0;
+        }
+        
+        /* Hide divider on small screens when columns stack */
+        @media (max-width: 768px) {
+            .column-divider {
+                display: none;
+            }
+        }
+        
+        .text-link {
+            color: var(--hyperlink);
+            font-family: 'Baloo Bhaijaan 2';
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .text-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* ==========================================================================
+           Responsive Media Queries
+           ========================================================================== */
+        
+        /* Tablets (max-width: 992px) */
+        @media (max-width: 992px) {
+            .top-menu-bar {
+                height: auto;
+                min-height: 60px;
+                position: relative;
+            }
+            
+            .search-bar {
+                width: 50%;
+                position: relative;
+                left: 50%;
+                transform: translateX(-50%);
+                margin: 10px auto;
+            }
+            
+            .left-navigation {
+                position: relative;
+                left: auto;
+                top: auto;
+                transform: none;
+                justify-content: center;
+                width: 100%;
+                margin: 10px 0;
+            }
+            
+            .center-actions {
+                position: relative;
+                left: auto;
+                top: auto;
+                transform: none;
+                justify-content: center;
+                width: 100%;
+                margin: 10px 0;
+            }
+            
+            .right-toggle-area {
+                position: relative;
+                left: auto;
+                justify-content: center;
+                width: 100%;
+                padding: 10px 0;
+            }
+            
+            .note-taking-section {
+                top: 10px;
+                height: calc(100vh - 200px);
+            }
+            
+            .options-area {
+                justify-content: center;
+            }
+            
+            .text-column {
+                width: 100%;
+            }
+            
+            .column-divider {
+                display: none;
+            }
+            
+            .content-area {
+                flex-direction: column;
+                overflow-y: auto;
+            }
+        }
+        
+        /* Mobile devices (max-width: 768px) */
+        @media (max-width: 768px) {
+            .search-bar {
+                width: 90%;
+                height: 40px;
+            }
+            
+            .search-text {
+                font-size: 18px;
+                padding: 0 30px;
+            }
+            
+            .search-icon {
+                width: 12px;
+                height: 12px;
+            }
+            
+            .nav-button,
+            .action-button {
+                padding: 8px;
+            }
+            
+            .nav-button svg,
+            .action-button svg {
+                width: 18px;
+                height: 18px;
+            }
+            
+            .note-taking-section {
+                border-radius: 8px;
+            }
+            
+            .note-title {
+                font-size: 20px;
+            }
+            
+            .options-area {
+                gap: 16px;
+            }
+            
+            .text-formatting-group,
+            .block-formatting-group,
+            .undo-redo-group {
+                gap: 16px;
+            }
+            
+            .formatting-button svg {
+                width: 14px;
+                height: 14px;
+            }
+            
+            .text-column {
+                font-size: 15px;
+                line-height: 28px;
+            }
+        }
+        
+        /* Small mobile devices (max-width: 480px) */
+        @media (max-width: 480px) {
+            .search-bar {
+                width: 95%;
+                height: 36px;
+            }
+            
+            .search-text {
+                font-size: 16px;
+                padding: 0 25px;
+            }
+            
+            .left-navigation,
+            .center-actions {
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+            
+            .nav-button,
+            .action-button {
+                padding: 6px;
+            }
+            
+            .nav-button svg,
+            .action-button svg {
+                width: 16px;
+                height: 16px;
+            }
+            
+            .toggle-component {
+                transform: scale(0.9);
+            }
+            
+            .note-title {
+                font-size: 18px;
+            }
+            
+            .text-options-toolbar {
+                justify-content: center;
+                width: 100%;
+                gap: 24px;
+            }
+            
+            .text-formatting-group,
+            .block-formatting-group,
+            .undo-redo-group {
+                gap: 12px;
+            }
+            
+            .formatting-button {
+                padding: 2px;
+            }
+            
+            .formatting-button svg {
+                width: 12px;
+                height: 12px;
+            }
+            
+            .text-column {
+                font-size: 14px;
+                line-height: 26px;
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 
+    ============================================================================
+    ROOT CONTAINER: Note Taking Screen
+    Type: Active note-taking interface
+    Dimensions: 2119px × 1458px
+    ============================================================================
+    -->
+    <div class="note-taking-screen" data-layer="BP2">
+        
+        <!-- 
+        ========================================================================
+        HEADER: Top Menu Bar Component
+        Type: Fixed header navigation with session context
+        Dimensions: 2119px × 73px
+        ========================================================================
+        -->
+        <header class="top-menu-bar" data-layer="Top Menu Bar">
+            
+            <!-- Search Bar / Session Name Display -->
+            <div class="search-bar" data-layer="Search Bar">
+                <div class="search-text">Note taking Session Name</div>
+                <div class="search-icon" data-layer="icon">
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path opacity="0.41" d="M13.8333 15L8.58333 9.75C8.16667 10.0833 7.6875 10.3472 7.14583 10.5417C6.60417 10.7361 6.02778 10.8333 5.41667 10.8333C3.90278 10.8333 2.62153 10.309 1.57292 9.26042C0.524306 8.21181 0 6.93056 0 5.41667C0 3.90278 0.524306 2.62153 1.57292 1.57292C2.62153 0.524306 3.90278 0 5.41667 0C6.93056 0 8.21181 0.524306 9.26042 1.57292C10.309 2.62153 10.8333 3.90278 10.8333 5.41667C10.8333 6.02778 10.7361 6.60417 10.5417 7.14583C10.3472 7.6875 10.0833 8.16667 9.75 8.58333L15 13.8333L13.8333 15ZM5.41667 9.16667C6.45833 9.16667 7.34375 8.80208 8.07292 8.07292C8.80208 7.34375 9.16667 6.45833 9.16667 5.41667C9.16667 4.375 8.80208 3.48958 8.07292 2.76042C7.34375 2.03125 6.45833 1.66667 5.41667 1.66667C4.375 1.66667 3.48958 2.03125 2.76042 2.76042C2.03125 3.48958 1.66667 4.375 1.66667 5.41667C1.66667 6.45833 2.03125 7.34375 2.76042 8.07292C3.48958 8.80208 4.375 9.16667 5.41667 9.16667Z" fill="var(--text)"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- Left Navigation Section -->
+            <nav class="left-navigation" data-layer="Frame 2">
+                <button class="nav-button home-button" data-layer="Home Button" aria-label="Home">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18.7074 16.5851V8.72749C18.7074 8.25818 18.6005 7.79505 18.3949 7.37317C18.1893 6.95128 17.8904 6.58172 17.5209 6.29247L10.9993 1.18844C10.6365 0.904357 10.189 0.75 9.7282 0.75C9.26741 0.75 8.8199 0.904357 8.45709 1.18844L1.93555 6.29144C1.56603 6.5809 1.26725 6.95068 1.06184 7.37274C0.856433 7.79481 0.749793 8.25809 0.75 8.72749V16.5851C0.75 17.7809 1.71906 18.75 2.91491 18.75H7.00763V10.5388H12.4488V18.75H16.5415C17.1157 18.75 17.6663 18.5219 18.0723 18.1159C18.4783 17.7099 18.7074 17.1593 18.7074 16.5851Z" stroke="var(--text)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                
+                <button class="nav-button library-button" data-layer="Library" aria-label="Library">
+                    <svg width="25" height="20" viewBox="0 0 25 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12.3246 5.12956C12.3246 4.55443 12.2113 3.98493 11.9912 3.45358C11.7711 2.92222 11.4485 2.43942 11.0418 2.03274C10.6351 1.62606 10.1523 1.30347 9.62098 1.08337C9.08963 0.863281 8.52013 0.75 7.94499 0.75H3.25261C2.58887 0.75 1.95233 1.01367 1.483 1.483C1.01367 1.95233 0.75 2.58887 0.75 3.25261V14.4192C0.75 15.083 1.01367 15.7195 1.483 16.1889C1.95233 16.6582 2.58887 16.9218 3.25261 16.9218H8.15396C9.1935 16.9218 10.2073 17.2454 11.0545 17.8478L12.3246 18.75M12.3246 5.12956V18.75M12.3246 5.12956C12.3246 3.96803 12.786 2.85407 13.6073 2.03274C14.4286 1.21142 15.5426 0.75 16.7041 0.75H21.3965C22.0602 0.75 22.6968 1.01367 23.1661 1.483C23.6354 1.95233 23.8991 2.58887 23.8991 3.25261V14.4192C23.8991 15.083 23.6354 15.7195 23.1661 16.1889C22.6968 16.6582 22.0602 16.9218 21.3965 16.9218H16.4939C15.4548 16.9221 14.4415 17.2457 13.5946 17.8478L12.3246 18.75" stroke="var(--text)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </nav>
+            
+            <!-- Center Action Buttons Section -->
+            <div class="center-actions" data-layer="Frame 3">
+                <button class="action-button bookmark-button" aria-label="Bookmark">
+                    <svg width="17" height="20" viewBox="0 0 17 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0.75 18.0952C0.75 18.6074 1.31984 18.9211 1.76111 18.6506L7.62615 15.0711C7.80139 14.9649 8.00239 14.9087 8.2073 14.9087C8.41222 14.9087 8.61322 14.9649 8.78846 15.0711L14.6535 18.6506C14.7533 18.7124 14.8677 18.7466 14.985 18.7496C15.1023 18.7527 15.2183 18.7245 15.3212 18.668C15.424 18.6115 15.51 18.5287 15.5704 18.4281C15.6307 18.3274 15.6632 18.2125 15.6646 18.0952V3.83578C15.6646 3.01738 15.3395 2.2325 14.7608 1.6538C14.1821 1.07511 13.3972 0.75 12.5788 0.75H3.83578C3.01738 0.75 2.2325 1.07511 1.6538 1.6538C1.07511 2.2325 0.75 3.01738 0.75 3.83578V18.0952Z" stroke="var(--text)" stroke-width="1.5" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                
+                <button class="action-button create-note-button" aria-label="Add Column">
+                    <svg width="29" height="29" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M7.89744 15.7949C8.93454 15.7949 9.96149 15.5906 10.9197 15.1937C11.8778 14.7968 12.7484 14.2151 13.4818 13.4818C14.2151 12.7484 14.7968 11.8778 15.1937 10.9197C15.5906 9.96149 15.7949 8.93454 15.7949 7.89744C15.7949 6.86033 15.5906 5.83338 15.1937 4.87522C14.7968 3.91706 14.2151 3.04645 13.4818 2.31311C12.7484 1.57976 11.8778 0.99804 10.9197 0.601156C9.96149 0.204273 8.93454 -1.54541e-08 7.89744 0C5.80291 3.12109e-08 3.79416 0.832049 2.31311 2.31311C0.832049 3.79416 0 5.80291 0 7.89744C0 9.99197 0.832049 12.0007 2.31311 13.4818C3.79416 14.9628 5.80291 15.7949 7.89744 15.7949ZM7.89744 2.88185C8.08785 2.88185 8.27046 2.95749 8.4051 3.09213C8.53974 3.22677 8.61538 3.40938 8.61538 3.59979V7.17949H12.1951C12.3855 7.17949 12.5681 7.25513 12.7027 7.38977C12.8374 7.52441 12.913 7.70702 12.913 7.89744C12.913 8.08785 12.8374 8.27046 12.7027 8.4051C12.5681 8.53974 12.3855 8.61539 12.1951 8.61539H8.61538V12.1951C8.61538 12.3855 8.53974 12.5681 8.4051 12.7027C8.27046 12.8374 8.08785 12.913 7.89744 12.913C7.70702 12.913 7.52441 12.8374 7.38977 12.7027C7.25513 12.5681 7.17949 12.3855 7.17949 12.1951V8.61539H3.59979C3.40938 8.61539 3.22677 8.53974 3.09213 8.4051C2.95749 8.27046 2.88185 8.08785 2.88185 7.89744C2.88185 7.70702 2.95749 7.52441 3.09213 7.38977C3.22677 7.25513 3.40938 7.17949 3.59979 7.17949H7.17949V3.59979C7.17949 3.40938 7.25513 3.22677 7.38977 3.09213C7.52441 2.95749 7.70702 2.88185 7.89744 2.88185Z" fill="var(--text)"/>
+                        <path d="M28 18.6666H25.559C23.1467 18.6666 21.9406 18.6666 21.0187 19.1361C20.2082 19.5491 19.5492 20.2081 19.1363 21.0186C18.6667 21.9404 18.6667 23.1466 18.6667 25.5589V27.9999M20.8206 10.0512H18.6667M15.077 15.7948H17.2308M18.3077 4.30762H18.8103C22.0267 4.30762 23.6349 4.30762 24.864 4.93367C25.9447 5.48432 26.8233 6.36294 27.374 7.44362C28 8.67275 28 10.281 28 13.4974V18.4498C28 19.8541 28 20.5577 27.8421 21.2182C27.6999 21.804 27.4688 22.364 27.1529 22.8781C26.7982 23.4582 26.3014 23.955 25.3077 24.9486L24.9488 25.3076C23.9551 26.3013 23.4583 26.7981 22.8782 27.1542C22.3644 27.4691 21.8043 27.7012 21.2183 27.842C20.5578 27.9999 19.8542 27.9999 18.4499 27.9999H13.4975C10.2811 27.9999 8.67287 27.9999 7.44374 27.3739C6.36306 26.8232 5.48444 25.9446 4.93379 24.8639C4.30774 23.6348 4.30774 22.0266 4.30774 18.8102V18.3076" stroke="var(--text)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                
+                <button class="action-button calendar-button" aria-label="Calendar">
+                    <svg width="19" height="20" viewBox="0 0 19 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0.75 7.07432H17.777M4.74989 2.69595V0.75M13.7499 2.69595V0.75M14.3716 2.69595H4.15541C3.25224 2.69595 2.38606 3.05473 1.74742 3.69337C1.10878 4.332 0.75 5.19818 0.75 6.10135V15.3446C0.75 16.2478 1.10878 17.1139 1.74742 17.7526C2.38606 18.3912 3.25224 18.75 4.15541 18.75H14.3716C15.2748 18.75 16.141 18.3912 16.7796 17.7526C17.4182 17.1139 17.777 16.2478 17.777 15.3446V6.10135C17.777 5.19818 17.4182 4.332 16.7796 3.69337C16.141 3.05473 15.2748 2.69595 14.3716 2.69595Z" stroke="var(--text)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Right Toggle Area Section -->
+            <div class="right-toggle-area" data-layer="Toggle Area">
+                <div class="toggle-component" data-layer="Toggle Component" data-toggled="False">
+                    <div class="toggle-switch" data-layer="Toggle Fretboard">
+                        <div class="toggle-background">
+                            <div class="toggle-indicator"></div>
+                        </div>
+                    </div>
+                    <div class="toggle-label" data-layer="Label">Fretboard</div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- 
+        ========================================================================
+        MAIN CONTENT AREA - Note Taking Section
+        Type: Active note editing interface
+        ========================================================================
+        -->
+        <section class="note-taking-section" data-layer="Note-taking Section">
+            
+            <!-- Title Section -->
+            <div class="title-section" data-layer="Title">
+                <h1 class="note-title" data-layer="Note Title">Note Title</h1>
+                
+                <!-- Text Formatting Options -->
+                <div class="options-area" data-layer="Options Area">
+                    <div class="text-options-toolbar" data-layer="Text Options Toolbar">
+                        <!-- Text Formatting Group -->
+                        <div class="text-formatting-group" data-layer="Text">
+                            <button class="formatting-button" aria-label="Bold" data-icon="Bold">
+                                <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M10.1669 8.35841C10.4933 8.14722 10.7688 7.85792 10.9714 7.51358C11.1739 7.16924 11.298 6.77938 11.3336 6.37508C11.3398 6.0095 11.2781 5.6462 11.1521 5.30595C11.0261 4.96569 10.8383 4.65513 10.5993 4.39202C10.3604 4.12891 10.075 3.9184 9.75941 3.77251C9.44385 3.62661 9.10434 3.5482 8.76026 3.54175H4.43359V13.4584H9.10026C9.42769 13.4547 9.75124 13.3825 10.0524 13.246C10.3536 13.1094 10.6265 12.9111 10.8555 12.6625C11.0846 12.4139 11.2653 12.1197 11.3874 11.7969C11.5094 11.474 11.5704 11.1288 11.5669 10.7809V10.6959C11.5672 10.2051 11.4355 9.72445 11.1875 9.31038C10.9395 8.89632 10.5855 8.56606 10.1669 8.35841ZM5.76693 4.95841H8.56693C8.85104 4.94907 9.13105 5.03228 9.36938 5.19688C9.60771 5.36147 9.79295 5.59958 9.90026 5.87925C10.0088 6.2531 9.97372 6.65741 9.80258 7.00384C9.63144 7.35026 9.33819 7.61061 8.98693 7.728C8.85051 7.77047 8.70908 7.79194 8.56693 7.79175H5.76693V4.95841ZM8.83359 12.0417H5.76693V9.20841H8.83359C9.11771 9.19907 9.39772 9.28228 9.63604 9.44688C9.87437 9.61147 10.0596 9.84958 10.1669 10.1292C10.2755 10.5031 10.2404 10.9074 10.0693 11.2538C9.89811 11.6003 9.60486 11.8606 9.25359 11.978C9.11718 12.0205 8.97574 12.0419 8.83359 12.0417Z" fill="var(--text-color)"/>
+                                </svg>
+                            </button>
+                            <button class="formatting-button" aria-label="Italic" data-icon="Italic">
+                                <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7.83971 6.37508H9.17305L7.70638 13.4584H6.37305L7.83971 6.37508ZM8.95971 3.54175C8.82786 3.54175 8.69897 3.58329 8.58933 3.66112C8.4797 3.73896 8.39425 3.84958 8.34379 3.97901C8.29334 4.10845 8.28013 4.25087 8.30586 4.38827C8.33158 4.52567 8.39507 4.65189 8.48831 4.75095C8.58154 4.85001 8.70033 4.91747 8.82965 4.9448C8.95897 4.97214 9.09302 4.95811 9.21484 4.9045C9.33665 4.85088 9.44077 4.7601 9.51403 4.64361C9.58728 4.52713 9.62638 4.39018 9.62638 4.25008C9.62638 4.06222 9.55614 3.88205 9.43112 3.74921C9.30609 3.61638 9.13652 3.54175 8.95971 3.54175Z" fill="var(--text-color)"/>
+                                </svg>
+                            </button>
+                            <button class="formatting-button" aria-label="Underline" data-icon="Underline">
+                                <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12.6663 14.1667V15.5834H3.33301V14.1667H12.6663ZM10.6663 9.36071C10.6444 9.8282 10.5138 10.2826 10.2862 10.6834C10.0586 11.0841 9.74106 11.4187 9.36202 11.6573C8.98299 11.8958 8.55424 12.0309 8.11408 12.0504C7.67393 12.0699 7.23608 11.9732 6.83967 11.769C6.38277 11.559 5.99528 11.2088 5.72685 10.7634C5.45843 10.3179 5.32129 9.79742 5.33301 9.26862V3.54529H3.99967V9.36071C4.02223 10.0275 4.19224 10.6794 4.49595 11.2634C4.79966 11.8474 5.22854 12.3473 5.74785 12.7225C6.26717 13.0977 6.86234 13.3377 7.48519 13.4231C8.10804 13.5085 8.74106 13.4369 9.33301 13.214C10.1204 12.9352 10.8036 12.3967 11.2832 11.677C11.7627 10.9572 12.0138 10.0937 11.9997 9.21196V3.54529H10.6663V9.36071ZM10.6663 3.54175H11.9997H10.6663ZM5.33301 3.54175H3.99967H5.33301Z" fill="var(--text-color)"/>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <!-- Block Formatting Group -->
+                        <div class="block-formatting-group" data-layer="Block">
+                            <button class="formatting-button" aria-label="Align Left" data-icon="Align Left">
+                                <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2 12.75H6V11.3333H2V12.75ZM2 7.79167V9.20833H10V7.79167H2ZM2 4.25V5.66667H14V4.25H2Z" fill="var(--text-color)"/>
+                                </svg>
+                            </button>
+                            <button class="formatting-button" aria-label="Align Center" data-icon="Align Center">
+                                <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 12.75H10V11.3333H6V12.75ZM4 7.79167V9.20833H12V7.79167H4ZM2 4.25V5.66667H14V4.25H2Z" fill="var(--text-color)"/>
+                                </svg>
+                            </button>
+                            <button class="formatting-button" aria-label="Ordered List" data-icon="Ordered List">
+                                <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M1.66699 11.3334H3.00033V11.6876H2.33366V12.3959H3.00033V12.7501H1.66699V13.4584H3.66699V10.6251H1.66699V11.3334ZM2.33366 6.37508H3.00033V3.54175H1.66699V4.25008H2.33366V6.37508ZM1.66699 7.79175H2.86699L1.66699 9.27925V9.91675H3.66699V9.20841H2.46699L3.66699 7.72091V7.08341H1.66699V7.79175ZM5.00033 4.25008V5.66675H14.3337V4.25008H5.00033ZM5.00033 12.7501H14.3337V11.3334H5.00033V12.7501ZM5.00033 9.20841H14.3337V7.79175H5.00033V9.20841Z" fill="var(--text-color)"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Undo/Redo Group -->
+                    <div class="undo-redo-group" data-layer="Undo / Redo">
+                        <button class="formatting-button disabled" aria-label="Undo" data-icon="Undo">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g opacity="0.25">
+                                    <path d="M10.4 9.4C8.7 9.7 7.2 10.3 5.8 11.4L3 8.5V15.5H10L7.3 12.8C11 10.2 16.1 11 18.8 14.7C19 15 19.2 15.2 19.3 15.5L21.1 14.6C18.9 10.8 14.7 8.7 10.4 9.4Z" fill="black"/>
+                                </g>
+                            </svg>
+                        </button>
+                        <button class="formatting-button disabled" aria-label="Redo" data-icon="Redo">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g opacity="0.25">
+                                    <path d="M13.6 9.4C15.3 9.7 16.8 10.3 18.2 11.4L21 8.5V15.5H14L16.7 12.8C13 10.1 7.9 11 5.3 14.7C5.1 15 4.9 15.2 4.8 15.5L3 14.6C5.1 10.8 9.3 8.7 13.6 9.4Z" fill="black"/>
+                                </g>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Title Divider -->
+            <hr class="title-divider" data-layer="Divider">
+            
+            <!-- Content Area with Two Columns -->
+            <div class="content-area" data-layer="Content">
+                <!-- First Text Column -->
+                <div class="text-column">This is an example text section.  This is an example text section. This is an example text section. This is an example text section. This is an example text section. 
+
+This is what bullet points look like 
+This is another one
+
+When </div>
+                
+                <!-- Column Divider -->
+                <div class="column-divider" data-layer="Line 4"></div>
+                
+                <!-- Second Text Column -->
+                <div class="text-column">If the user would like it they can add a second text section that will appear like this
+Furthermore they can reference the fretboard in their notes by using the add fretboard button, and a hyperlinked fretboard link will look like <a href="#" class="text-link">this</a></div>
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        // Toggle switches functionality
+        const toggles = document.querySelectorAll('.toggle-background');
+        toggles.forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const indicator = this.querySelector('.toggle-indicator');
+                const isActive = this.classList.contains('active');
+                
+                if (isActive) {
+                    this.classList.remove('active');
+                    indicator.style.left = '3px';
+                    indicator.style.right = 'auto';
+                } else {
+                    this.classList.add('active');
+                    indicator.style.left = 'auto';
+                    indicator.style.right = '3px';
+                }
+            });
+        });
+        
+        // Formatting buttons functionality (placeholder)
+        const formattingButtons = document.querySelectorAll('.formatting-button:not(.disabled)');
+        formattingButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const icon = this.getAttribute('data-icon');
+                console.log(`Formatting action: ${icon}`);
+                // Add actual formatting logic here
+            });
+        });
+    </script>
+</body>
+</html>
