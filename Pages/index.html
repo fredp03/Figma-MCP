@@ -1263,7 +1263,17 @@
         // Home navigation accessibility
         const homeButton = document.querySelector('[data-nav-target="home"]');
         attachNavigation(homeButton, 'home');
-        
+
+        // Card navigation to analysis screen
+        const cardContainers = document.querySelectorAll('.card-container');
+
+        cardContainers.forEach((card) => {
+            const title = card.querySelector('.card-title')?.textContent?.trim() || '';
+
+            card.setAttribute('tabindex', '0');
+            attachNavigation(card, 'analysis', () => ({ sessionName: title }));
+        });
+
         // Toggle switches functionality
         const toggles = document.querySelectorAll('.toggle-background');
         toggles.forEach(toggle => {
