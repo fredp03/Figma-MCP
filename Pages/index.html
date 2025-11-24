@@ -925,7 +925,7 @@
             
             <!-- Left Navigation Section -->
             <nav class="left-navigation" data-layer="Frame 2">
-                <button class="nav-button home-button" data-layer="Home Button" aria-label="Home">
+                <button class="nav-button home-button" data-layer="Home Button" aria-label="Home" data-nav-target="home">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M18.7074 16.5851V8.72749C18.7074 8.25818 18.6005 7.79505 18.3949 7.37317C18.1893 6.95128 17.8904 6.58172 17.5209 6.29247L10.9993 1.18844C10.6365 0.904357 10.189 0.75 9.7282 0.75C9.26741 0.75 8.8199 0.904357 8.45709 1.18844L1.93555 6.29144C1.56603 6.5809 1.26725 6.95068 1.06184 7.37274C0.856433 7.79481 0.749793 8.25809 0.75 8.72749V16.5851C0.75 17.7809 1.71906 18.75 2.91491 18.75H7.00763V10.5388H12.4488V18.75H16.5415C17.1157 18.75 17.6663 18.5219 18.0723 18.1159C18.4783 17.7099 18.7074 17.1593 18.7074 16.5851Z" stroke="var(--text)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
@@ -1163,6 +1163,48 @@
     </div>
     
     <script>
+        // Navigation utilities
+        const NAV_ROUTES = {
+            home: 'index.html',
+            analysis: 'New-Analysis-Screen.html'
+        };
+
+        const buildNavigationUrl = (target, params = {}) => {
+            const destination = NAV_ROUTES[target] || target;
+            const url = new URL(destination, window.location.origin);
+
+            Object.entries(params).forEach(([key, value]) => {
+                if (value) {
+                    url.searchParams.set(key, value);
+                }
+            });
+
+            return url.toString();
+        };
+
+        const navigateTo = (target, params = {}) => {
+            const url = buildNavigationUrl(target, params);
+            window.location.assign(url);
+        };
+
+        const attachNavigation = (element, target, paramsProvider) => {
+            if (!element) return;
+
+            const handler = (event) => {
+                event.preventDefault();
+                const params = typeof paramsProvider === 'function' ? paramsProvider(event) : {};
+                navigateTo(target, params);
+            };
+
+            element.addEventListener('click', handler);
+            element.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    handler(event);
+                }
+            });
+        };
+
         // Modal functionality
         const createModal = document.getElementById('createModal');
         const createNoteButton = document.querySelector('.create-note-button');
@@ -1199,22 +1241,28 @@
             }
         });
         
-        // Handle form submission
-        createSessionForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const sessionName = document.getElementById('sessionName').value;
-            const keySignature = document.getElementById('keySignature').value;
-            
+        // Handle form submission with robust navigation
+        createSessionForm.setAttribute('action', NAV_ROUTES.analysis);
+        createSessionForm.setAttribute('method', 'GET');
+
+        createSessionForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(createSessionForm);
+            const sessionName = formData.get('sessionName')?.trim();
+            const keySignature = formData.get('keySignature')?.trim();
+
             console.log('Creating session:', { sessionName, keySignature });
-            
-            // Redirect to New-Analysis-Screen.html with session data as URL parameters
-            const params = new URLSearchParams({
-                sessionName: sessionName,
+
+            navigateTo('analysis', {
+                sessionName: sessionName || '',
                 keySignature: keySignature || ''
             });
-            window.location.href = `New-Analysis-Screen.html?${params.toString()}`;
         });
+
+        // Home navigation accessibility
+        const homeButton = document.querySelector('[data-nav-target="home"]');
+        attachNavigation(homeButton, 'home');
         
         // Toggle switches functionality
         const toggles = document.querySelectorAll('.toggle-background');
