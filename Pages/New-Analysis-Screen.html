@@ -1774,12 +1774,12 @@
             {
                 id: 'seed-1',
                 title: "Isn't She Lovely",
-                content: 'This is an example text section.  This is an example text section. This is an example text section. This is an example text section. This is an example text section.
+                content: `This is an example text section.  This is an example text section. This is an example text section. This is an example text section. This is an example text section.
 
 This is what bullet points look like
 This is another one
 
-When',
+When`,
                 secondaryContent: 'If the user would like it they can add a second text section that will appear like this Furthermore they can reference the fretboard in their notes by using the add fretboard button, and a hyperlinked fretboard link will look like this',
                 updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
             },
@@ -2188,8 +2188,6 @@ When',
         
         // Library button toggle functionality - switches between analysis and note-taking view
         const libraryButton = document.querySelector('.library-button');
-        const noteTakingSection = document.querySelector('.note-taking-section');
-        const infoCardsSection = document.querySelector('.info-cards-section');
         
         let notesActive = false;
         
@@ -2250,9 +2248,6 @@ When',
             }
         });
         
-        // Home button functionality - redirects to index.html with accessible navigation
-        const homeButton = document.querySelector('[data-nav-target="home"]');
-        attachNavigation(homeButton, 'home');
     </script>
 
     <!-- SVG Filters and Gradients for Fretboard -->
