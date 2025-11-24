@@ -1798,7 +1798,7 @@
 
         const buildNavigationUrl = (target, params = {}) => {
             const destination = NAV_ROUTES[target] || target;
-            const url = new URL(destination, window.location.origin);
+            const url = new URL(destination, window.location.href);
 
             Object.entries(params).forEach(([key, value]) => {
                 if (value) {
