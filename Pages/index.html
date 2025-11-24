@@ -247,7 +247,7 @@
         
         .toggle-indicator {
             position: absolute;
-            right: 3px;
+            left: 3px;
             top: 50%;
             transform: translateY(-50%);
             width: 9.78px;
@@ -1222,15 +1222,15 @@
             toggle.addEventListener('click', function() {
                 const indicator = this.querySelector('.toggle-indicator');
                 const isActive = this.classList.contains('active');
-                
+
                 if (isActive) {
                     this.classList.remove('active');
-                    indicator.style.right = '3px';
-                    indicator.style.left = 'auto';
-                } else {
-                    this.classList.add('active');
                     indicator.style.left = '3px';
                     indicator.style.right = 'auto';
+                } else {
+                    this.classList.add('active');
+                    indicator.style.left = 'auto';
+                    indicator.style.right = '3px';
                 }
             });
         });
