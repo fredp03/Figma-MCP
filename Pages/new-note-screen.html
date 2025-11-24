@@ -790,28 +790,118 @@
             <!-- Content Area with Two Columns -->
             <div class="content-area" data-layer="Content">
                 <!-- First Text Column -->
-                <div class="text-column">This is an example text section.  This is an example text section. This is an example text section. This is an example text section. This is an example text section. 
-
-This is what bullet points look like 
-This is another one
-
-When </div>
+                                <div class="text-column editable-text" contenteditable="true" data-content-field="primary">Start capturing your ideas here...</div>
                 
                 <!-- Column Divider -->
                 <div class="column-divider" data-layer="Line 4"></div>
                 
                 <!-- Second Text Column -->
-                <div class="text-column">If the user would like it they can add a second text section that will appear like this
-Furthermore they can reference the fretboard in their notes by using the add fretboard button, and a hyperlinked fretboard link will look like <a href="#" class="text-link">this</a></div>
+                                <div class="text-column editable-text" contenteditable="true" data-content-field="secondary">Use this space for supporting ideas or references.</div>
             </div>
         </section>
     </div>
     
     <script>
-        // Navigation utilities
+        const NOTE_STORAGE_KEY = 'notesDatabase';
+        const DEFAULT_NOTES = [
+            {
+                id: 'seed-1',
+                title: "Isn't She Lovely",
+                content: 'This is an example text section.  This is an example text section. This is an example text section. This is an example text section. This is an example text section.
+
+This is what bullet points look like
+This is another one
+
+When',
+                secondaryContent: 'If the user would like it they can add a second text section that will appear like this Furthermore they can reference the fretboard in their notes by using the add fretboard button, and a hyperlinked fretboard link will look like this',
+                updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+            },
+            {
+                id: 'seed-2',
+                title: 'II - V - I Practice',
+                content: 'Practice cycling through II - V - I in all keys. Focus on smooth voice leading and rhythmic consistency.',
+                secondaryContent: 'Consider arpeggio substitutions and enclosure ideas for the V chord.',
+                updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+            },
+            {
+                id: 'seed-3',
+                title: 'C Major Fusion Backing',
+                content: 'Altered and Phrygian Dominant flavors over the bridge. Capture motifs that resolve to the tonic.',
+                secondaryContent: 'Track tone choices and pedal settings for repeatable tone.',
+                updatedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
+            },
+            {
+                id: 'seed-4',
+                title: 'Strasbourg St. Denis',
+                content: 'Melodic Minor & Modes ideas to test against the head. Note any tension releases that felt best.',
+                secondaryContent: 'Transcribe a chorus from Roy Hargrove for phrasing reference.',
+                updatedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+            }
+        ];
+
+        const PRIMARY_PLACEHOLDER = 'Start capturing your ideas here...';
+        const SECONDARY_PLACEHOLDER = 'Use this space for supporting ideas or references.';
+
         const NAV_ROUTES = {
             home: 'index.html',
             analysis: 'New-Analysis-Screen.html'
+        };
+
+        const readNotes = () => {
+            const stored = localStorage.getItem(NOTE_STORAGE_KEY);
+            if (!stored) return [];
+
+            try {
+                const parsed = JSON.parse(stored);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (error) {
+                console.warn('Unable to parse notes database', error);
+                return [];
+            }
+        };
+
+        const saveNotes = (notes) => {
+            localStorage.setItem(NOTE_STORAGE_KEY, JSON.stringify(notes));
+        };
+
+        const getNotes = () => {
+            const notes = readNotes();
+            if (!notes.length) {
+                saveNotes(DEFAULT_NOTES);
+                return [...DEFAULT_NOTES];
+            }
+
+            return notes;
+        };
+
+        const createNoteRecord = (title = 'Untitled Note') => {
+            const notes = getNotes();
+            const newNote = {
+                id: crypto.randomUUID ? crypto.randomUUID() : `note-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                title: title.trim() || 'Untitled Note',
+                content: '',
+                secondaryContent: '',
+                updatedAt: new Date().toISOString()
+            };
+
+            notes.push(newNote);
+            saveNotes(notes);
+            return newNote;
+        };
+
+        const updateNoteRecord = (id, updates) => {
+            const notes = getNotes();
+            const index = notes.findIndex((note) => note.id === id);
+            if (index === -1) return null;
+
+            notes[index] = {
+                ...notes[index],
+                ...updates,
+                updatedAt: new Date().toISOString()
+            };
+
+            saveNotes(notes);
+            return notes[index];
         };
 
         const buildNavigationUrl = (target, params = {}) => {
@@ -850,13 +940,98 @@ Furthermore they can reference the fretboard in their notes by using the add fre
             });
         };
 
+        const urlParams = new URLSearchParams(window.location.search);
+        const noteId = urlParams.get('noteId');
+        const sessionName = urlParams.get('sessionName');
+        const contentFields = document.querySelectorAll('[data-content-field]');
+        const noteTitle = document.querySelector('.note-title');
+        const sessionHeading = document.querySelector('.search-text');
+        const createNoteButton = document.querySelector('.create-note-button');
+
+        const applyTitle = (title) => {
+            if (noteTitle) {
+                noteTitle.textContent = title;
+            }
+            if (sessionHeading) {
+                sessionHeading.textContent = title;
+            }
+        };
+
+        let activeNote = null;
+
+        const resolveActiveNote = () => {
+            const notes = getNotes();
+            let note = notes.find((entry) => entry.id === noteId) || null;
+
+            if (!note && sessionName) {
+                note = notes.find((entry) => entry.title === sessionName) || null;
+            }
+
+            if (!note) {
+                note = createNoteRecord(sessionName || 'Untitled Note');
+            }
+
+            return note;
+        };
+
+        activeNote = resolveActiveNote();
+
+        if (sessionName && activeNote.title !== sessionName) {
+            const updated = updateNoteRecord(activeNote.id, { title: sessionName });
+            if (updated) {
+                activeNote = updated;
+            }
+        }
+
+        const renderContent = () => {
+            applyTitle(activeNote.title || 'Untitled Note');
+            contentFields.forEach((field) => {
+                const key = field.dataset.contentField === 'secondary' ? 'secondaryContent' : 'content';
+                const value = (activeNote[key] || '').trim();
+                const placeholder = field.dataset.contentField === 'secondary' ? SECONDARY_PLACEHOLDER : PRIMARY_PLACEHOLDER;
+                field.textContent = value || placeholder;
+            });
+        };
+
+        const persistNote = () => {
+            if (!activeNote) return;
+            const updates = {};
+
+            contentFields.forEach((field) => {
+                const key = field.dataset.contentField === 'secondary' ? 'secondaryContent' : 'content';
+                const placeholder = field.dataset.contentField === 'secondary' ? SECONDARY_PLACEHOLDER : PRIMARY_PLACEHOLDER;
+                const value = field.textContent.trim();
+                updates[key] = value === placeholder ? '' : value;
+            });
+
+            const updated = updateNoteRecord(activeNote.id, updates);
+            if (updated) {
+                activeNote = updated;
+            }
+        };
+
+        renderContent();
+
+        contentFields.forEach((field) => {
+            field.addEventListener('input', persistNote);
+            field.addEventListener('blur', persistNote);
+            field.setAttribute('aria-label', field.dataset.contentField === 'secondary' ? 'Secondary note content' : 'Primary note content');
+        });
+
+        if (createNoteButton) {
+            createNoteButton.addEventListener('click', () => {
+                activeNote = createNoteRecord('Untitled Note');
+                renderContent();
+            });
+        }
+
         // Toggle switches functionality
         const toggles = document.querySelectorAll('.toggle-background');
         toggles.forEach(toggle => {
             toggle.addEventListener('click', function() {
                 const indicator = this.querySelector('.toggle-indicator');
                 const isActive = this.classList.contains('active');
-                
+
                 if (isActive) {
                     this.classList.remove('active');
                     indicator.style.left = '3px';
@@ -868,7 +1043,7 @@ Furthermore they can reference the fretboard in their notes by using the add fre
                 }
             });
         });
-        
+
         // Formatting buttons functionality (placeholder)
         const formattingButtons = document.querySelectorAll('.formatting-button:not(.disabled)');
         formattingButtons.forEach(button => {
@@ -882,6 +1057,6 @@ Furthermore they can reference the fretboard in their notes by using the add fre
         // Home navigation (icon only)
         const homeButton = document.querySelector('[data-nav-target="home"]');
         attachNavigation(homeButton, 'home');
-    </script>
+</script>
 </body>
 </html>

@@ -1603,28 +1603,7 @@
                 <hr class="title-divider" data-layer="Divider">
                 
                 <div class="note-content-area" data-layer="Content">
-                    <div class="text-area" data-layer="Text Area" contenteditable="true">
-                        <p>This is an example text section. This is an example text section. This is an example text section. This is an example text section. This is an example text section.</p>
-                        <p>&nbsp;</p>
-                        <p>This is an example text section. This is an example text section. This is an example text section. This is an example text section. This is an example text section.</p>
-                        <p>&nbsp;</p>
-                        <p>This is what bullet points look like</p>
-                        <p>This is another one</p>
-                        <p>&nbsp;</p>
-                        <p>This is an example text section. This is an example text section. This is an example text section. This is an example text section. This is an example text section.</p>
-                        <p>&nbsp;</p>
-                        <p>This is an example text section. This is an example text section. This is an example text section. This is an example text section. This is an example text section.</p>
-                        <p>&nbsp;</p>
-                        <p>This is an example text section. This is an example text section. This is an example text section. This is an example text section. This is an example text section.</p>
-                        <p>&nbsp;</p>
-                        <p>This is an example text section. This is an example text section. This is an example text section. This is an example text section. This is an example text section.</p>
-                        <p>&nbsp;</p>
-                        <p>This is an example text section. This is an example text section. This is an example text section. This is an example text section. This is an example text section.</p>
-                        <p>&nbsp;</p>
-                        <p>This is an example text section. This is an example text section. This is an example text section. This is an example text section. This is an example text section.</p>
-                        <p>&nbsp;</p>
-                        <p>When you reach the bottom, this gradient should disappear.</p>
-                    </div>
+                    <div class="text-area" data-layer="Text Area" contenteditable="true" data-content-field="primary">Start capturing your ideas here...</div>
                 </div>
             </article>
             
@@ -1790,10 +1769,106 @@
     </div>
     
     <script>
+        const NOTE_STORAGE_KEY = 'notesDatabase';
+        const DEFAULT_NOTES = [
+            {
+                id: 'seed-1',
+                title: "Isn't She Lovely",
+                content: 'This is an example text section.  This is an example text section. This is an example text section. This is an example text section. This is an example text section.
+
+This is what bullet points look like
+This is another one
+
+When',
+                secondaryContent: 'If the user would like it they can add a second text section that will appear like this Furthermore they can reference the fretboard in their notes by using the add fretboard button, and a hyperlinked fretboard link will look like this',
+                updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+            },
+            {
+                id: 'seed-2',
+                title: 'II - V - I Practice',
+                content: 'Practice cycling through II - V - I in all keys. Focus on smooth voice leading and rhythmic consistency.',
+                secondaryContent: 'Consider arpeggio substitutions and enclosure ideas for the V chord.',
+                updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+            },
+            {
+                id: 'seed-3',
+                title: 'C Major Fusion Backing',
+                content: 'Altered and Phrygian Dominant flavors over the bridge. Capture motifs that resolve to the tonic.',
+                secondaryContent: 'Track tone choices and pedal settings for repeatable tone.',
+                updatedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
+            },
+            {
+                id: 'seed-4',
+                title: 'Strasbourg St. Denis',
+                content: 'Melodic Minor & Modes ideas to test against the head. Note any tension releases that felt best.',
+                secondaryContent: 'Transcribe a chorus from Roy Hargrove for phrasing reference.',
+                updatedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+            }
+        ];
+
+        const PRIMARY_PLACEHOLDER = 'Start capturing your ideas here...';
+
         // Navigation utilities
         const NAV_ROUTES = {
             home: 'index.html',
             analysis: 'New-Analysis-Screen.html'
+        };
+
+        const readNotes = () => {
+            const stored = localStorage.getItem(NOTE_STORAGE_KEY);
+            if (!stored) return [];
+
+            try {
+                const parsed = JSON.parse(stored);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (error) {
+                console.warn('Unable to parse notes database', error);
+                return [];
+            }
+        };
+
+        const saveNotes = (notes) => {
+            localStorage.setItem(NOTE_STORAGE_KEY, JSON.stringify(notes));
+        };
+
+        const getNotes = () => {
+            const notes = readNotes();
+            if (!notes.length) {
+                saveNotes(DEFAULT_NOTES);
+                return [...DEFAULT_NOTES];
+            }
+
+            return notes;
+        };
+
+        const createNoteRecord = (title = 'Untitled Note') => {
+            const notes = getNotes();
+            const newNote = {
+                id: crypto.randomUUID ? crypto.randomUUID() : `note-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                title: title.trim() || 'Untitled Note',
+                content: '',
+                secondaryContent: '',
+                updatedAt: new Date().toISOString()
+            };
+
+            notes.push(newNote);
+            saveNotes(notes);
+            return newNote;
+        };
+
+        const updateNoteRecord = (id, updates) => {
+            const notes = getNotes();
+            const index = notes.findIndex((note) => note.id === id);
+            if (index === -1) return null;
+
+            notes[index] = {
+                ...notes[index],
+                ...updates,
+                updatedAt: new Date().toISOString()
+            };
+
+            saveNotes(notes);
+            return notes[index];
         };
 
         const buildNavigationUrl = (target, params = {}) => {
@@ -1832,36 +1907,104 @@
             });
         };
 
-        // Read URL parameters and populate note title if coming from create session
         const urlParams = new URLSearchParams(window.location.search);
+        const noteId = urlParams.get('noteId');
         const sessionName = urlParams.get('sessionName');
         const keySignature = urlParams.get('keySignature');
-        
-        if (sessionName) {
-            // Update the note title
-            const noteTitle = document.querySelector('.note-title');
+
+        const noteTitle = document.querySelector('.note-title');
+        const sessionHeading = document.querySelector('.search-text');
+        const textArea = document.querySelector('.text-area');
+        const noteTakingSection = document.querySelector('.note-taking-section');
+        const infoCardsSection = document.querySelector('.info-cards-section');
+        const createNoteButton = document.querySelector('.create-note-button');
+
+        const updateTitleDisplays = (title) => {
             if (noteTitle) {
-                noteTitle.textContent = sessionName;
+                noteTitle.textContent = title;
             }
-            
-            // Optionally, you can also use the keySignature if needed
-            // For example, update some other element or store it for later use
-            if (keySignature) {
-                console.log('Session created with key signature:', keySignature);
-                // You could store this in a data attribute or use it elsewhere
+            if (sessionHeading) {
+                sessionHeading.textContent = title;
             }
-            
-            // Automatically activate the note-taking view
-            const noteTakingSection = document.querySelector('.note-taking-section');
-            const infoCardsSection = document.querySelector('.info-cards-section');
-            
-            if (noteTakingSection && infoCardsSection) {
-                infoCardsSection.classList.add('notes-active');
-                noteTakingSection.classList.add('active');
+        };
+
+        let activeNote = null;
+
+        const resolveActiveNote = () => {
+            const notes = getNotes();
+            let note = notes.find((entry) => entry.id === noteId) || null;
+
+            if (!note && sessionName) {
+                note = notes.find((entry) => entry.title === sessionName) || null;
+            }
+
+            if (!note) {
+                note = createNoteRecord(sessionName || 'Untitled Note');
+            }
+
+            return note;
+        };
+
+        activeNote = resolveActiveNote();
+
+        if (sessionName && activeNote.title !== sessionName) {
+            const updated = updateNoteRecord(activeNote.id, { title: sessionName });
+            if (updated) {
+                activeNote = updated;
             }
         }
-        
-        // Menu navigation state management
+
+        const renderNote = () => {
+            const title = activeNote?.title || 'Untitled Note';
+            updateTitleDisplays(title);
+
+            if (textArea) {
+                const value = (activeNote?.content || '').trim();
+                textArea.textContent = value || PRIMARY_PLACEHOLDER;
+                textArea.setAttribute('aria-label', 'Note content');
+            }
+        };
+
+        const persistNote = () => {
+            if (!activeNote) return;
+            const contentValue = (textArea?.textContent || '').trim();
+            const updates = {
+                content: contentValue === PRIMARY_PLACEHOLDER ? '' : contentValue
+            };
+
+            const updated = updateNoteRecord(activeNote.id, updates);
+            if (updated) {
+                activeNote = updated;
+            }
+        };
+
+        renderNote();
+
+        if (textArea) {
+            textArea.addEventListener('input', persistNote);
+            textArea.addEventListener('blur', persistNote);
+        }
+
+        if (activeNote && noteTakingSection && infoCardsSection) {
+            infoCardsSection.classList.add('notes-active');
+            noteTakingSection.classList.add('active');
+        }
+
+        if (keySignature) {
+            console.log('Session created with key signature:', keySignature);
+        }
+
+        if (createNoteButton) {
+            createNoteButton.addEventListener('click', () => {
+                const newNote = createNoteRecord('Untitled Note');
+                navigateTo('analysis', { noteId: newNote.id, sessionName: newNote.title });
+            });
+        }
+
+        const homeButton = document.querySelector('[data-nav-target="home"]');
+        attachNavigation(homeButton, 'home');
+
+// Menu navigation state management
         const menuState = {
             view: 'primary', // primary, secondary, tertiary
             activeMenu: null,
