@@ -22,6 +22,9 @@
             --background-outline: #E3E2E2;
             --text-light: #F0F0F0;
             --fret-border: #585858;
+            --menu-transition-duration: 360ms;
+            --menu-transition-timing: cubic-bezier(0.33, 1, 0.68, 1);
+            --menu-transition-distance: 12px;
         }
         
         /* ==========================================================================
@@ -628,8 +631,9 @@
             align-items: center;
             gap: clamp(20px, 2.31vw, 40px);
             flex-wrap: wrap;
+            position: relative;
         }
-        
+
         .menu-item {
             color: var(--text);
             font-size: clamp(16px, 1.11vw, 19.20px);
@@ -638,14 +642,16 @@
             line-height: 33px;
             white-space: nowrap;
             cursor: pointer;
-            transition: opacity 0.2s;
+            transition: opacity 150ms ease, transform 180ms ease;
             background: none;
             border: none;
             padding: 0;
+            --menu-item-index: 0;
         }
-        
+
         .menu-item:hover {
             opacity: 0.7;
+            transform: translateY(-2px);
         }
         
         .primary-menu-view .menu-item.active {
@@ -710,24 +716,96 @@
             padding-left: 10px;
             gap: 84px;
         }
-        
+
+        /* Menu view animations */
         @keyframes menuViewFadeUp {
             from {
                 opacity: 0;
-                transform: translateY(8px);
+                transform: translateY(var(--menu-transition-distance)) scale(0.98);
+                filter: blur(2px);
+            }
+            60% {
+                opacity: 1;
+                filter: blur(0);
             }
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateY(0) scale(1);
             }
         }
-        
-        .menu-view-animate {
-            animation: menuViewFadeUp 220ms ease forwards;
+
+        @keyframes menuViewSlideBack {
+            from {
+                opacity: 0;
+                transform: translateY(calc(var(--menu-transition-distance) * -0.6)) scale(0.99);
+                filter: blur(1px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
         }
-        
+
+        @keyframes menuDividerReveal {
+            from {
+                opacity: 0;
+                transform: scaleX(0.85);
+            }
+            to {
+                opacity: 0.23;
+                transform: scaleX(1);
+            }
+        }
+
+        .menu-view-animate-forward {
+            animation: menuViewFadeUp var(--menu-transition-duration) var(--menu-transition-timing) forwards;
+        }
+
+        .menu-view-animate-backward {
+            animation: menuViewSlideBack var(--menu-transition-duration) var(--menu-transition-timing) forwards;
+        }
+
+        .menu-view-animate-forward .menu-divider-horizontal,
+        .menu-view-animate-backward .menu-divider-horizontal {
+            animation: menuDividerReveal calc(var(--menu-transition-duration) * 0.8) ease forwards;
+            transform-origin: left;
+        }
+
+        .menu-view-animate-forward .menu-item,
+        .menu-view-animate-backward .menu-item {
+            animation: menuViewFadeUp calc(var(--menu-transition-duration) * 0.9) var(--menu-transition-timing) forwards;
+            animation-delay: calc(var(--menu-item-index) * 40ms);
+            opacity: 0;
+        }
+
+        .menu-view-animate-backward .menu-item {
+            animation-name: menuViewSlideBack;
+        }
+
+        .menu-view-animate-forward .breadcrumb-path > div,
+        .menu-view-animate-backward .breadcrumb-path > div {
+            animation: menuViewSlideBack calc(var(--menu-transition-duration) * 0.9) var(--menu-transition-timing) forwards;
+            opacity: 0;
+        }
+
+        /* Stagger helpers for menu buttons */
+        .menu-items-container .menu-item:nth-of-type(1) { --menu-item-index: 0; }
+        .menu-items-container .menu-item:nth-of-type(2) { --menu-item-index: 1; }
+        .menu-items-container .menu-item:nth-of-type(3) { --menu-item-index: 2; }
+        .menu-items-container .menu-item:nth-of-type(4) { --menu-item-index: 3; }
+        .menu-items-container .menu-item:nth-of-type(5) { --menu-item-index: 4; }
+        .menu-items-container .menu-item:nth-of-type(6) { --menu-item-index: 5; }
+        .menu-items-container .menu-item:nth-of-type(7) { --menu-item-index: 6; }
+        .menu-items-container .menu-item:nth-of-type(8) { --menu-item-index: 7; }
+
         @media (prefers-reduced-motion: reduce) {
-            .menu-view-animate {
+            .menu-view-animate-forward,
+            .menu-view-animate-backward,
+            .menu-view-animate-forward .menu-item,
+            .menu-view-animate-backward .menu-item,
+            .menu-view-animate-forward .breadcrumb-path > div,
+            .menu-view-animate-backward .breadcrumb-path > div {
                 animation: none;
             }
         }
@@ -2025,7 +2103,8 @@ When`,
         Object.values(menuViews).forEach(view => {
             if (!view) return;
             view.addEventListener('animationend', () => {
-                view.classList.remove('menu-view-animate');
+                view.classList.remove('menu-view-animate-forward');
+                view.classList.remove('menu-view-animate-backward');
             });
         });
         
@@ -2133,21 +2212,30 @@ When`,
             
             triggerMenuViewAnimation(previousView);
         }
-        
+
         function triggerMenuViewAnimation(previousView) {
+            const direction = deriveAnimationDirection(previousView, menuState.view);
             const enteringView = menuViews[menuState.view];
             if (enteringView) {
-                enteringView.classList.remove('menu-view-animate');
+                enteringView.classList.remove('menu-view-animate-forward', 'menu-view-animate-backward');
                 void enteringView.offsetWidth; // Force reflow to restart animation
-                enteringView.classList.add('menu-view-animate');
+                enteringView.classList.add(direction === 'backward' ? 'menu-view-animate-backward' : 'menu-view-animate-forward');
             }
-            
+
             if (previousView) {
                 const leavingView = menuViews[previousView];
                 if (leavingView) {
-                    leavingView.classList.remove('menu-view-animate');
+                    leavingView.classList.remove('menu-view-animate-forward', 'menu-view-animate-backward');
                 }
             }
+        }
+
+        function deriveAnimationDirection(fromView, toView) {
+            if (!fromView || fromView === toView) return 'forward';
+            const order = ['primary', 'secondary', 'tertiary'];
+            const fromIndex = order.indexOf(fromView);
+            const toIndex = order.indexOf(toView);
+            return toIndex < fromIndex ? 'backward' : 'forward';
         }
         
         function attachAction(element, handler) {
