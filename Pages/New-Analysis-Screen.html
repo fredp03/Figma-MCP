@@ -612,6 +612,8 @@
            Analysis Navigation Menu - RESPONSIVE
            ========================================================================== */
         .analysis-menu {
+            --menu-anim-duration: 360ms;
+            --menu-anim-ease: cubic-bezier(0.24, 0.84, 0.38, 1);
             min-height: 83px;
             padding: 20px clamp(16px, 1.85vw, 32px);
             border-radius: 13px;
@@ -621,13 +623,16 @@
             position: relative;
             max-width: 100%;
             box-sizing: border-box;
+            overflow: hidden;
+            backdrop-filter: saturate(1.05);
         }
-        
+
         .menu-items-container {
             display: flex;
             align-items: center;
             gap: clamp(20px, 2.31vw, 40px);
             flex-wrap: wrap;
+            position: relative;
         }
         
         .menu-item {
@@ -638,14 +643,22 @@
             line-height: 33px;
             white-space: nowrap;
             cursor: pointer;
-            transition: opacity 0.2s;
+            transition: color 180ms ease, opacity 180ms ease, transform 260ms var(--menu-anim-ease);
             background: none;
             border: none;
             padding: 0;
         }
-        
-        .menu-item:hover {
-            opacity: 0.7;
+
+        .menu-item:hover,
+        .menu-item:focus-visible {
+            opacity: 0.9;
+            color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .menu-item:active {
+            transform: translateY(0);
+            opacity: 1;
         }
         
         .primary-menu-view .menu-item.active {
@@ -666,6 +679,14 @@
             opacity: 0.23;
         }
         
+        .primary-menu-view,
+        .secondary-menu-view,
+        .tertiary-menu-view {
+            position: relative;
+            z-index: 1;
+            isolation: isolate;
+        }
+
         /* Secondary Menu View */
         .analysis-menu[data-view="secondary"] .menu-items-container {
             padding-left: 10px;
@@ -711,24 +732,58 @@
             gap: 84px;
         }
         
-        @keyframes menuViewFadeUp {
-            from {
+        .menu-view-enter-active {
+            animation: menuViewEnter var(--menu-anim-duration) var(--menu-anim-ease) forwards;
+        }
+
+        .menu-view-exit-active {
+            display: block !important;
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0));
+            pointer-events: none;
+            z-index: 2;
+            animation: menuViewExit calc(var(--menu-anim-duration) * 0.92) cubic-bezier(0.42, 0, 0.21, 1) forwards;
+        }
+
+        @keyframes menuViewEnter {
+            0% {
                 opacity: 0;
-                transform: translateY(8px);
+                transform: translateY(12px) scale(0.98);
+                filter: blur(8px);
             }
-            to {
+            55% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
+            100% {
                 opacity: 1;
                 transform: translateY(0);
+                filter: blur(0);
             }
         }
-        
-        .menu-view-animate {
-            animation: menuViewFadeUp 220ms ease forwards;
+
+        @keyframes menuViewExit {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.995);
+                filter: blur(6px);
+            }
         }
-        
+
         @media (prefers-reduced-motion: reduce) {
-            .menu-view-animate {
-                animation: none;
+            .menu-view-enter-active,
+            .menu-view-exit-active,
+            .menu-item,
+            .analysis-menu {
+                animation: none !important;
+                transition: none;
             }
         }
         
@@ -2022,10 +2077,12 @@ When`,
             tertiary: analysisMenu.querySelector('.tertiary-menu-view')
         };
         
+        const MENU_VIEW_CLASSES = ['menu-view-enter-active', 'menu-view-exit-active'];
+
         Object.values(menuViews).forEach(view => {
             if (!view) return;
             view.addEventListener('animationend', () => {
-                view.classList.remove('menu-view-animate');
+                MENU_VIEW_CLASSES.forEach(cls => view.classList.remove(cls));
             });
         });
         
@@ -2137,15 +2194,17 @@ When`,
         function triggerMenuViewAnimation(previousView) {
             const enteringView = menuViews[menuState.view];
             if (enteringView) {
-                enteringView.classList.remove('menu-view-animate');
+                enteringView.classList.remove('menu-view-enter-active');
                 void enteringView.offsetWidth; // Force reflow to restart animation
-                enteringView.classList.add('menu-view-animate');
+                enteringView.classList.add('menu-view-enter-active');
             }
-            
+
             if (previousView) {
                 const leavingView = menuViews[previousView];
                 if (leavingView) {
-                    leavingView.classList.remove('menu-view-animate');
+                    leavingView.classList.remove('menu-view-exit-active');
+                    void leavingView.offsetWidth;
+                    leavingView.classList.add('menu-view-exit-active');
                 }
             }
         }
