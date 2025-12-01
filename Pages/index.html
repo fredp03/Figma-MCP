@@ -73,6 +73,24 @@
             border-radius: 0;
             margin: 0;
             padding: 0;
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 320ms ease, transform 320ms ease;
+            will-change: opacity, transform;
+        }
+        
+        body.page-transitioning .recent-notes-screen {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+            .recent-notes-screen,
+            body.page-transitioning .recent-notes-screen {
+                transition: none;
+                opacity: 1;
+                transform: none;
+            }
         }
         
         /* ==========================================================================
@@ -1126,6 +1144,10 @@ When`,
             home: 'index.html',
             analysis: 'New-Analysis-Screen.html'
         };
+        const recentNotesScreen = document.querySelector('.recent-notes-screen');
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const PAGE_TRANSITION_MS = 320;
+        let isNavigating = false;
 
         const readNotes = () => {
             const stored = localStorage.getItem(NOTE_STORAGE_KEY);
@@ -1197,9 +1219,37 @@ When`,
             return url.toString();
         };
 
+        const runPageTransition = (callback) => {
+            if (isNavigating || !recentNotesScreen || prefersReducedMotion) {
+                callback();
+                return;
+            }
+
+            isNavigating = true;
+            document.body.classList.add('page-transitioning');
+
+            let completed = false;
+            const finish = () => {
+                if (completed) return;
+                completed = true;
+                callback();
+            };
+
+            const handleTransitionEnd = (event) => {
+                if (event.target !== recentNotesScreen || event.propertyName !== 'opacity') {
+                    return;
+                }
+                recentNotesScreen.removeEventListener('transitionend', handleTransitionEnd);
+                finish();
+            };
+
+            recentNotesScreen.addEventListener('transitionend', handleTransitionEnd);
+            setTimeout(finish, PAGE_TRANSITION_MS);
+        };
+
         const navigateTo = (target, params = {}) => {
             const url = buildNavigationUrl(target, params);
-            window.location.assign(url);
+            runPageTransition(() => window.location.assign(url));
         };
 
         const attachNavigation = (element, target, paramsProvider) => {
@@ -1225,7 +1275,6 @@ When`,
         const createNoteButton = document.querySelector('.create-note-button');
         const closeModalButton = document.getElementById('closeModal');
         const createSessionForm = document.getElementById('createSessionForm');
-        const recentNotesScreen = document.querySelector('.recent-notes-screen');
         const notesGrid = document.getElementById('notesGrid');
 
         const formatTimestamp = (isoDate) => {

@@ -356,6 +356,12 @@
             opacity: 0.7;
         }
         
+        .formatting-button.active {
+            opacity: 1;
+            outline: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+        }
+        
         .formatting-button.disabled {
             opacity: 0.25;
         }
@@ -1044,15 +1050,129 @@ When`,
             });
         });
 
-        // Formatting buttons functionality (placeholder)
-        const formattingButtons = document.querySelectorAll('.formatting-button:not(.disabled)');
-        formattingButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const icon = this.getAttribute('data-icon');
-                console.log(`Formatting action: ${icon}`);
-                // Add actual formatting logic here
+        const EDITABLE_SELECTOR = '[data-content-field][contenteditable="true"]';
+        const formattingCommands = {
+            Bold: 'bold',
+            Italic: 'italic',
+            Underline: 'underline'
+        };
+        let lastSelection = null;
+
+        const findEditableAncestor = (node) => {
+            let current = node;
+            while (current) {
+                if (current.nodeType === Node.ELEMENT_NODE && current.matches && current.matches(EDITABLE_SELECTOR)) {
+                    return current;
+                }
+                current = current.parentElement || current.parentNode;
+            }
+            return null;
+        };
+
+        const saveSelection = () => {
+            const selection = window.getSelection();
+            if (!selection || !selection.rangeCount) {
+                lastSelection = null;
+                return;
+            }
+
+            const range = selection.getRangeAt(0);
+            const editable = findEditableAncestor(range.commonAncestorContainer);
+            if (!editable) {
+                lastSelection = null;
+                return;
+            }
+
+            lastSelection = {
+                range: range.cloneRange(),
+                editable
+            };
+        };
+
+        const restoreSelection = () => {
+            if (!lastSelection || !lastSelection.range || !document.body.contains(lastSelection.editable)) {
+                return null;
+            }
+
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(lastSelection.range);
+            lastSelection.editable.focus({ preventScroll: true });
+            return lastSelection.editable;
+        };
+
+        const updateFormattingButtons = () => {
+            const selection = window.getSelection();
+            const activeEditable = selection && selection.rangeCount ? findEditableAncestor(selection.getRangeAt(0).commonAncestorContainer) : null;
+            const states = {
+                bold: activeEditable ? document.queryCommandState('bold') : false,
+                italic: activeEditable ? document.queryCommandState('italic') : false,
+                underline: activeEditable ? document.queryCommandState('underline') : false
+            };
+
+            Object.entries(formattingCommands).forEach(([key, command]) => {
+                const active = states[command];
+                document.querySelectorAll(`.formatting-button[data-icon="${key}"]`).forEach((button) => {
+                    button.classList.toggle('active', !!active);
+                    button.setAttribute('aria-pressed', active ? 'true' : 'false');
+                });
+            });
+        };
+
+        const applyFormatting = (action) => {
+            const command = formattingCommands[action];
+            if (!command) return;
+
+            const selection = window.getSelection();
+            const activeEditable = selection && selection.rangeCount ? findEditableAncestor(selection.getRangeAt(0).commonAncestorContainer) : null;
+            const targetEditable = activeEditable || restoreSelection();
+
+            if (!targetEditable) {
+                return;
+            }
+
+            targetEditable.focus({ preventScroll: true });
+            if (lastSelection && lastSelection.range) {
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(lastSelection.range);
+            }
+
+            document.execCommand(command, false, null);
+            saveSelection();
+            updateFormattingButtons();
+            persistNote();
+        };
+
+        contentFields.forEach((field) => {
+            field.addEventListener('focus', () => {
+                saveSelection();
+                updateFormattingButtons();
+            });
+
+            ['keyup', 'mouseup', 'touchend'].forEach((eventName) => {
+                field.addEventListener(eventName, () => {
+                    saveSelection();
+                    updateFormattingButtons();
+                });
             });
         });
+
+        const formattingButtons = document.querySelectorAll('.formatting-button:not(.disabled)');
+        formattingButtons.forEach(button => {
+            button.addEventListener('mousedown', (event) => {
+                event.preventDefault();
+            });
+            button.addEventListener('click', function() {
+                const icon = this.getAttribute('data-icon');
+                if (formattingCommands[icon]) {
+                    applyFormatting(icon);
+                } else {
+                    console.log(`Formatting action: ${icon}`);
+                }
+            });
+        });
+        updateFormattingButtons();
 
         // Home navigation (icon only)
         const homeButton = document.querySelector('[data-nav-target="home"]');
