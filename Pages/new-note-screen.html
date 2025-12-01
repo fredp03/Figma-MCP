@@ -44,6 +44,12 @@
             font: 600 16px/33px 'Baloo Bhaijaan 2', sans-serif;
             color: #BC2F2F;
         }
+
+        .fretboard-hyperlink {
+            font-weight: 700;
+            color: var(--hyperlink);
+            text-decoration: underline;
+        }
         
         /* ==========================================================================
            Base Styles
@@ -847,6 +853,8 @@ When`,
 
         const PRIMARY_PLACEHOLDER = 'Start capturing your ideas here...';
         const SECONDARY_PLACEHOLDER = 'Use this space for supporting ideas or references.';
+        const FRETBOARD_STATE_KEY = 'fretboard-current-notes';
+        const FRETBOARD_HYPERLINK_CLASS = 'fretboard-hyperlink';
 
         const NAV_ROUTES = {
             home: 'index.html',
@@ -993,9 +1001,9 @@ When`,
             applyTitle(activeNote.title || 'Untitled Note');
             contentFields.forEach((field) => {
                 const key = field.dataset.contentField === 'secondary' ? 'secondaryContent' : 'content';
-                const value = (activeNote[key] || '').trim();
+                const value = activeNote[key] || '';
                 const placeholder = field.dataset.contentField === 'secondary' ? SECONDARY_PLACEHOLDER : PRIMARY_PLACEHOLDER;
-                field.textContent = value || placeholder;
+                field.innerHTML = value || placeholder;
             });
         };
 
@@ -1006,8 +1014,9 @@ When`,
             contentFields.forEach((field) => {
                 const key = field.dataset.contentField === 'secondary' ? 'secondaryContent' : 'content';
                 const placeholder = field.dataset.contentField === 'secondary' ? SECONDARY_PLACEHOLDER : PRIMARY_PLACEHOLDER;
-                const value = field.textContent.trim();
-                updates[key] = value === placeholder ? '' : value;
+                const plainValue = field.textContent.trim();
+                const richValue = field.innerHTML.trim();
+                updates[key] = plainValue === placeholder ? '' : richValue;
             });
 
             const updated = updateNoteRecord(activeNote.id, updates);
@@ -1058,6 +1067,43 @@ When`,
         };
         let lastSelection = null;
 
+        const getCurrentFretboardNotes = () => {
+            const stored = localStorage.getItem(FRETBOARD_STATE_KEY);
+            if (!stored) return null;
+
+            try {
+                return JSON.parse(stored);
+            } catch (error) {
+                console.warn('Unable to parse fretboard notes', error);
+                return stored;
+            }
+        };
+
+        const captureFretboardSnapshot = () => ({
+            notes: getCurrentFretboardNotes(),
+            capturedAt: new Date().toISOString()
+        });
+
+        const findHyperlinkAncestor = (node) => {
+            let current = node;
+            while (current) {
+                if (current.nodeType === Node.ELEMENT_NODE && current.classList?.contains(FRETBOARD_HYPERLINK_CLASS)) {
+                    return current;
+                }
+                current = current.parentElement || current.parentNode;
+            }
+            return null;
+        };
+
+        const getHyperlinkFromSelection = () => {
+            const selection = window.getSelection();
+            if (!selection || !selection.rangeCount) return null;
+
+            const anchorNode = selection.anchorNode;
+            const focusNode = selection.focusNode;
+            return findHyperlinkAncestor(anchorNode) || findHyperlinkAncestor(focusNode);
+        };
+
         const findEditableAncestor = (node) => {
             let current = node;
             while (current) {
@@ -1099,6 +1145,63 @@ When`,
             selection.addRange(lastSelection.range);
             lastSelection.editable.focus({ preventScroll: true });
             return lastSelection.editable;
+        };
+
+        const createHyperlinkFromSelection = () => {
+            const selection = window.getSelection();
+            if (!selection || !selection.rangeCount || selection.isCollapsed) return false;
+
+            const range = selection.getRangeAt(0);
+            const editable = findEditableAncestor(range.commonAncestorContainer);
+            if (!editable) return false;
+
+            const snapshot = captureFretboardSnapshot();
+            const link = document.createElement('span');
+            link.classList.add(FRETBOARD_HYPERLINK_CLASS);
+            link.dataset.fretboardSnapshot = JSON.stringify(snapshot);
+            link.textContent = selection.toString();
+
+            range.deleteContents();
+            range.insertNode(link);
+
+            const newRange = document.createRange();
+            newRange.selectNodeContents(link);
+
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+
+            saveSelection();
+            persistNote();
+            return true;
+        };
+
+        const updateHyperlinkSnapshot = () => {
+            const hyperlink = getHyperlinkFromSelection();
+            if (!hyperlink) return false;
+
+            const snapshot = captureFretboardSnapshot();
+            hyperlink.dataset.fretboardSnapshot = JSON.stringify(snapshot);
+            persistNote();
+            return true;
+        };
+
+        const removeHyperlinkAtSelection = () => {
+            const hyperlink = getHyperlinkFromSelection();
+            if (!hyperlink || !hyperlink.parentNode) return false;
+
+            const parent = hyperlink.parentNode;
+            const textNode = document.createTextNode(hyperlink.textContent);
+            parent.replaceChild(textNode, hyperlink);
+
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents(textNode);
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            saveSelection();
+            persistNote();
+            return true;
         };
 
         const updateFormattingButtons = () => {
@@ -1173,6 +1276,25 @@ When`,
             });
         });
         updateFormattingButtons();
+
+        const handleHyperlinkShortcut = (event) => {
+            if (!(event.ctrlKey && event.altKey && event.metaKey)) return;
+            const key = event.key.toLowerCase();
+
+            if (key === 'h') {
+                event.preventDefault();
+                if (!removeHyperlinkAtSelection()) {
+                    createHyperlinkFromSelection();
+                }
+            }
+
+            if (key === 'u') {
+                event.preventDefault();
+                updateHyperlinkSnapshot();
+            }
+        };
+
+        document.addEventListener('keydown', handleHyperlinkShortcut);
 
         // Home navigation (icon only)
         const homeButton = document.querySelector('[data-nav-target="home"]');
