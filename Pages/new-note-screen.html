@@ -44,6 +44,12 @@
             font: 600 16px/33px 'Baloo Bhaijaan 2', sans-serif;
             color: #BC2F2F;
         }
+
+        .fretboard-link {
+            color: var(--hyperlink);
+            font-weight: 700;
+            text-decoration: underline;
+        }
         
         /* ==========================================================================
            Base Styles
@@ -995,7 +1001,7 @@ When`,
                 const key = field.dataset.contentField === 'secondary' ? 'secondaryContent' : 'content';
                 const value = (activeNote[key] || '').trim();
                 const placeholder = field.dataset.contentField === 'secondary' ? SECONDARY_PLACEHOLDER : PRIMARY_PLACEHOLDER;
-                field.textContent = value || placeholder;
+                field.innerHTML = value || placeholder;
             });
         };
 
@@ -1006,8 +1012,9 @@ When`,
             contentFields.forEach((field) => {
                 const key = field.dataset.contentField === 'secondary' ? 'secondaryContent' : 'content';
                 const placeholder = field.dataset.contentField === 'secondary' ? SECONDARY_PLACEHOLDER : PRIMARY_PLACEHOLDER;
-                const value = field.textContent.trim();
-                updates[key] = value === placeholder ? '' : value;
+                const textValue = field.textContent.trim();
+                const htmlValue = field.innerHTML.trim();
+                updates[key] = textValue === placeholder ? '' : htmlValue;
             });
 
             const updated = updateNoteRecord(activeNote.id, updates);
@@ -1056,6 +1063,8 @@ When`,
             Italic: 'italic',
             Underline: 'underline'
         };
+        const FRETBOARD_NOTE_KEY = 'fretboardNotes';
+        const FRETBOARD_LINK_CLASS = 'fretboard-link';
         let lastSelection = null;
 
         const findEditableAncestor = (node) => {
@@ -1087,6 +1096,50 @@ When`,
                 range: range.cloneRange(),
                 editable
             };
+        };
+
+        const getCurrentFretboardNotes = () => {
+            const stored = localStorage.getItem(FRETBOARD_NOTE_KEY);
+            if (stored) return stored;
+
+            const timestamp = new Date().toLocaleString();
+            return `Captured fretboard snapshot at ${timestamp}`;
+        };
+
+        const findLinkInSelection = () => {
+            const selection = window.getSelection();
+            if (!selection || !selection.rangeCount) return null;
+
+            const node = selection.anchorNode;
+            const editable = findEditableAncestor(node);
+            if (!editable) return null;
+
+            return node ? (node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement).closest(`a.${FRETBOARD_LINK_CLASS}`) : null;
+        };
+
+        const wrapSelectionWithLink = (range) => {
+            if (!range || range.collapsed) return null;
+
+            const snapshot = getCurrentFretboardNotes();
+            const link = document.createElement('a');
+            link.href = '#fretboard';
+            link.classList.add(FRETBOARD_LINK_CLASS);
+            link.dataset.fretboardNotes = snapshot;
+            link.dataset.fretboardCapturedAt = new Date().toISOString();
+            link.title = 'Saved fretboard notes';
+            link.appendChild(range.extractContents());
+            range.insertNode(link);
+            return link;
+        };
+
+        const removeLinkPreserveText = (link) => {
+            if (!link || !link.parentNode) return;
+            const parent = link.parentNode;
+            while (link.firstChild) {
+                parent.insertBefore(link.firstChild, link);
+            }
+            parent.removeChild(link);
+            parent.normalize();
         };
 
         const restoreSelection = () => {
@@ -1155,6 +1208,47 @@ When`,
                     saveSelection();
                     updateFormattingButtons();
                 });
+            });
+
+            field.addEventListener('keydown', (event) => {
+                const key = event.key.toLowerCase();
+                const hasModifiers = event.ctrlKey && event.altKey && event.metaKey;
+                if (!hasModifiers || (key !== 'h' && key !== 'u')) {
+                    return;
+                }
+
+                event.preventDefault();
+                const selection = window.getSelection();
+                if (!selection || !selection.rangeCount) return;
+
+                const range = selection.getRangeAt(0);
+                const editable = findEditableAncestor(range.commonAncestorContainer);
+                if (!editable) return;
+
+                const existingLink = findLinkInSelection();
+
+                if (key === 'h') {
+                    if (existingLink) {
+                        removeLinkPreserveText(existingLink);
+                    } else {
+                        const newLink = wrapSelectionWithLink(range);
+                        if (newLink) {
+                            const newRange = document.createRange();
+                            newRange.selectNodeContents(newLink);
+                            selection.removeAllRanges();
+                            selection.addRange(newRange);
+                        }
+                    }
+                }
+
+                if (key === 'u' && existingLink) {
+                    existingLink.dataset.fretboardNotes = getCurrentFretboardNotes();
+                    existingLink.dataset.fretboardCapturedAt = new Date().toISOString();
+                    existingLink.title = 'Saved fretboard notes';
+                }
+
+                saveSelection();
+                persistNote();
             });
         });
 
