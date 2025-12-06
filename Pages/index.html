@@ -1103,7 +1103,48 @@
     </div>
     
     <script>
-        const NOTES_API_BASE = '/api/notes';
+        const LOCAL_STORAGE_KEY = 'notesDatabase';
+        const TEMPLATE_NOTE = {
+            title: 'Untitled Note',
+            description: '',
+            content: '',
+            updatedAt: null
+        };
+        const DEFAULT_NOTES = [
+            {
+                id: 'seed-1',
+                title: "Isn't She Lovely",
+                description:
+                    'If the user would like it they can add a second text section that will appear like this. Furthermore they can reference the fretboard in their notes by using the add fretboard button, and a hyperlinked fretboard link will look like this.',
+                content:
+                    'This is an example text section. This is an example text section. This is an example text section. This is an example text section. This is an example text section.\n\nThis is what bullet points look like\nThis is another one\n\nWhen',
+                updatedAt: '2024-12-01T12:00:00.000Z'
+            },
+            {
+                id: 'seed-2',
+                title: 'II - V - I Practice',
+                description: 'Consider arpeggio substitutions and enclosure ideas for the V chord.',
+                content:
+                    'Practice cycling through II - V - I in all keys. Focus on smooth voice leading and rhythmic consistency.',
+                updatedAt: '2024-12-02T12:00:00.000Z'
+            },
+            {
+                id: 'seed-3',
+                title: 'C Major Fusion Backing',
+                description: 'Track tone choices and pedal settings for repeatable tone.',
+                content:
+                    'Altered and Phrygian Dominant flavors over the bridge. Capture motifs that resolve to the tonic.',
+                updatedAt: '2024-12-03T12:00:00.000Z'
+            },
+            {
+                id: 'seed-4',
+                title: 'Strasbourg St. Denis',
+                description: 'Transcribe a chorus from Roy Hargrove for phrasing reference.',
+                content: 'Melodic Minor & Modes ideas to test against the head. Note any tension releases that felt best.',
+                updatedAt: '2024-12-04T12:00:00.000Z'
+            }
+        ];
+
         const NAV_ROUTES = {
             home: 'index.html',
             analysis: 'New-Analysis-Screen.html'
@@ -1113,23 +1154,52 @@
         const PAGE_TRANSITION_MS = 320;
         let isNavigating = false;
 
-        const fetchJson = async (url, options = {}) => {
-            const response = await fetch(url, options);
-            if (!response.ok) {
-                const message = await response.text();
-                throw new Error(message || 'Request failed');
+        const generateId = () => {
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                return crypto.randomUUID();
             }
-            return response.json();
+            return `note-${Date.now()}-${Math.random().toString(16).slice(2)}`;
         };
 
-        const getNotes = async () => fetchJson(NOTES_API_BASE);
+        const readNotes = () => {
+            const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (!raw) return [];
+            try {
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch {
+                return [];
+            }
+        };
 
-        const createNoteRecord = async (title = 'Untitled Note', description = '') =>
-            fetchJson(NOTES_API_BASE, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title: title.trim() || 'Untitled Note', description })
-            });
+        const saveNotes = (notes) => localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(notes));
+
+        const ensureSeededNotes = () => {
+            const existing = readNotes();
+            if (existing.length) return existing;
+
+            const seeded = DEFAULT_NOTES.map((note) => ({ ...note }));
+            saveNotes(seeded);
+            return seeded;
+        };
+
+        const getNotes = async () => ensureSeededNotes();
+
+        const createNoteRecord = async (title = 'Untitled Note', description = '') => {
+            const notes = ensureSeededNotes();
+            const safeTitle = title.trim() || 'Untitled Note';
+            const newNote = {
+                id: generateId(),
+                ...TEMPLATE_NOTE,
+                title: safeTitle,
+                description: description.trim(),
+                updatedAt: new Date().toISOString()
+            };
+
+            notes.unshift(newNote);
+            saveNotes(notes);
+            return newNote;
+        };
 
         const buildNavigationUrl = (target, params = {}) => {
             const destination = NAV_ROUTES[target] || target;
