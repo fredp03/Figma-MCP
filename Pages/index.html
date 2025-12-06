@@ -1103,40 +1103,45 @@
     </div>
     
     <script>
-        const NOTE_STORAGE_KEY = 'notesDatabase';
+        const LOCAL_STORAGE_KEY = 'notesDatabase';
+        const TEMPLATE_NOTE = {
+            title: 'Untitled Note',
+            description: '',
+            content: '',
+            updatedAt: null
+        };
         const DEFAULT_NOTES = [
             {
                 id: 'seed-1',
                 title: "Isn't She Lovely",
-                content: `This is an example text section.  This is an example text section. This is an example text section. This is an example text section. This is an example text section.
-
-This is what bullet points look like
-This is another one
-
-When`,
-                secondaryContent: 'If the user would like it they can add a second text section that will appear like this Furthermore they can reference the fretboard in their notes by using the add fretboard button, and a hyperlinked fretboard link will look like this',
-                updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+                description:
+                    'If the user would like it they can add a second text section that will appear like this. Furthermore they can reference the fretboard in their notes by using the add fretboard button, and a hyperlinked fretboard link will look like this.',
+                content:
+                    'This is an example text section. This is an example text section. This is an example text section. This is an example text section. This is an example text section.\n\nThis is what bullet points look like\nThis is another one\n\nWhen',
+                updatedAt: '2024-12-01T12:00:00.000Z'
             },
             {
                 id: 'seed-2',
                 title: 'II - V - I Practice',
-                content: 'Practice cycling through II - V - I in all keys. Focus on smooth voice leading and rhythmic consistency.',
-                secondaryContent: 'Consider arpeggio substitutions and enclosure ideas for the V chord.',
-                updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+                description: 'Consider arpeggio substitutions and enclosure ideas for the V chord.',
+                content:
+                    'Practice cycling through II - V - I in all keys. Focus on smooth voice leading and rhythmic consistency.',
+                updatedAt: '2024-12-02T12:00:00.000Z'
             },
             {
                 id: 'seed-3',
                 title: 'C Major Fusion Backing',
-                content: 'Altered and Phrygian Dominant flavors over the bridge. Capture motifs that resolve to the tonic.',
-                secondaryContent: 'Track tone choices and pedal settings for repeatable tone.',
-                updatedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
+                description: 'Track tone choices and pedal settings for repeatable tone.',
+                content:
+                    'Altered and Phrygian Dominant flavors over the bridge. Capture motifs that resolve to the tonic.',
+                updatedAt: '2024-12-03T12:00:00.000Z'
             },
             {
                 id: 'seed-4',
                 title: 'Strasbourg St. Denis',
+                description: 'Transcribe a chorus from Roy Hargrove for phrasing reference.',
                 content: 'Melodic Minor & Modes ideas to test against the head. Note any tension releases that felt best.',
-                secondaryContent: 'Transcribe a chorus from Roy Hargrove for phrasing reference.',
-                updatedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+                updatedAt: '2024-12-04T12:00:00.000Z'
             }
         ];
 
@@ -1149,61 +1154,51 @@ When`,
         const PAGE_TRANSITION_MS = 320;
         let isNavigating = false;
 
-        const readNotes = () => {
-            const stored = localStorage.getItem(NOTE_STORAGE_KEY);
-            if (!stored) return [];
+        const generateId = () => {
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                return crypto.randomUUID();
+            }
+            return `note-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        };
 
+        const readNotes = () => {
+            const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (!raw) return [];
             try {
-                const parsed = JSON.parse(stored);
+                const parsed = JSON.parse(raw);
                 return Array.isArray(parsed) ? parsed : [];
-            } catch (error) {
-                console.warn('Unable to parse notes database', error);
+            } catch {
                 return [];
             }
         };
 
-        const saveNotes = (notes) => {
-            localStorage.setItem(NOTE_STORAGE_KEY, JSON.stringify(notes));
+        const saveNotes = (notes) => localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(notes));
+
+        const ensureSeededNotes = () => {
+            const existing = readNotes();
+            if (existing.length) return existing;
+
+            const seeded = DEFAULT_NOTES.map((note) => ({ ...note }));
+            saveNotes(seeded);
+            return seeded;
         };
 
-        const getNotes = () => {
-            const notes = readNotes();
-            if (!notes.length) {
-                saveNotes(DEFAULT_NOTES);
-                return [...DEFAULT_NOTES];
-            }
+        const getNotes = async () => ensureSeededNotes();
 
-            return notes;
-        };
-
-        const createNoteRecord = (title = 'Untitled Note') => {
-            const notes = getNotes();
+        const createNoteRecord = async (title = 'Untitled Note', description = '') => {
+            const notes = ensureSeededNotes();
+            const safeTitle = title.trim() || 'Untitled Note';
             const newNote = {
-                id: crypto.randomUUID ? crypto.randomUUID() : `note-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-                title: title.trim() || 'Untitled Note',
-                content: '',
-                secondaryContent: '',
+                id: generateId(),
+                ...TEMPLATE_NOTE,
+                title: safeTitle,
+                description: description.trim(),
                 updatedAt: new Date().toISOString()
             };
 
-            notes.push(newNote);
+            notes.unshift(newNote);
             saveNotes(notes);
             return newNote;
-        };
-
-        const updateNoteRecord = (id, updates) => {
-            const notes = getNotes();
-            const index = notes.findIndex((note) => note.id === id);
-            if (index === -1) return null;
-
-            notes[index] = {
-                ...notes[index],
-                ...updates,
-                updatedAt: new Date().toISOString()
-            };
-
-            saveNotes(notes);
-            return notes[index];
         };
 
         const buildNavigationUrl = (target, params = {}) => {
@@ -1311,7 +1306,8 @@ When`,
             columnOne.className = 'content-column-1';
             const primaryText = document.createElement('p');
             primaryText.className = 'primary-content-text';
-            const snippetSource = note.content?.trim() || note.secondaryContent?.trim() || 'No content yet';
+            const snippetSource =
+                note.content?.trim() || note.description?.trim() || note.secondaryContent?.trim() || 'No content yet';
             primaryText.textContent = snippetSource.length > 120 ? `${snippetSource.slice(0, 117)}...` : snippetSource;
             columnOne.appendChild(primaryText);
 
@@ -1335,31 +1331,34 @@ When`,
             return article;
         };
 
-        const renderNotesGrid = () => {
+        const renderNotesGrid = async () => {
             if (!notesGrid) return;
-            const notes = getNotes();
             notesGrid.innerHTML = '';
 
-            if (!notes.length) {
-                const emptyState = document.createElement('p');
-                emptyState.className = 'empty-state';
-                emptyState.textContent = 'Create your first note to get started.';
-                notesGrid.appendChild(emptyState);
-                return;
-            }
+            try {
+                const notes = await getNotes();
 
-            notes.forEach((note) => {
-                notesGrid.appendChild(createCardElement(note));
-            });
+                if (!notes.length) {
+                    const emptyState = document.createElement('p');
+                    emptyState.className = 'empty-state';
+                    emptyState.textContent = 'Create your first note to get started.';
+                    notesGrid.appendChild(emptyState);
+                    return;
+                }
+
+                notes.forEach((note) => {
+                    notesGrid.appendChild(createCardElement(note));
+                });
+            } catch (error) {
+                const errorState = document.createElement('p');
+                errorState.className = 'empty-state';
+                errorState.textContent = 'Unable to load notes. Please try again.';
+                notesGrid.appendChild(errorState);
+                console.error(error);
+            }
         };
 
         renderNotesGrid();
-
-        window.addEventListener('storage', (event) => {
-            if (event.key === NOTE_STORAGE_KEY) {
-                renderNotesGrid();
-            }
-        });
 
         // Open modal when create note button is clicked
         createNoteButton.addEventListener('click', () => {
@@ -1394,21 +1393,25 @@ When`,
         createSessionForm.setAttribute('action', NAV_ROUTES.analysis);
         createSessionForm.setAttribute('method', 'GET');
 
-        createSessionForm.addEventListener('submit', (event) => {
+        createSessionForm.addEventListener('submit', async (event) => {
             event.preventDefault();
 
             const formData = new FormData(createSessionForm);
             const sessionName = formData.get('sessionName')?.toString().trim();
             const keySignature = formData.get('keySignature')?.toString().trim();
 
-            const newNote = createNoteRecord(sessionName || 'Untitled Note');
-            renderNotesGrid();
+            try {
+                const newNote = await createNoteRecord(sessionName || 'Untitled Note', '');
+                await renderNotesGrid();
 
-            navigateTo('analysis', {
-                noteId: newNote.id,
-                sessionName: newNote.title,
-                keySignature: keySignature || ''
-            });
+                navigateTo('analysis', {
+                    noteId: newNote.id,
+                    sessionName: newNote.title,
+                    keySignature: keySignature || ''
+                });
+            } catch (error) {
+                console.error('Unable to create note', error);
+            }
         });
 
         // Home navigation accessibility

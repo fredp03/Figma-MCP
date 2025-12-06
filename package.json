@@ -1,0 +1,6 @@
+{
+  "name": "figma-mcp-notes",
+  "version": "1.0.0",
+  "description": "Static notes app runnable with live-server",
+  "scripts": {}
+}

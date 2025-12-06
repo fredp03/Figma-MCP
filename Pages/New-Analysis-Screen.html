@@ -1855,40 +1855,45 @@
     </div>
     
     <script>
-        const NOTE_STORAGE_KEY = 'notesDatabase';
+        const LOCAL_STORAGE_KEY = 'notesDatabase';
+        const TEMPLATE_NOTE = {
+            title: 'Untitled Note',
+            description: '',
+            content: '',
+            updatedAt: null
+        };
         const DEFAULT_NOTES = [
             {
                 id: 'seed-1',
                 title: "Isn't She Lovely",
-                content: `This is an example text section.  This is an example text section. This is an example text section. This is an example text section. This is an example text section.
-
-This is what bullet points look like
-This is another one
-
-When`,
-                secondaryContent: 'If the user would like it they can add a second text section that will appear like this Furthermore they can reference the fretboard in their notes by using the add fretboard button, and a hyperlinked fretboard link will look like this',
-                updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+                description:
+                    'If the user would like it they can add a second text section that will appear like this. Furthermore they can reference the fretboard in their notes by using the add fretboard button, and a hyperlinked fretboard link will look like this.',
+                content:
+                    'This is an example text section. This is an example text section. This is an example text section. This is an example text section. This is an example text section.\n\nThis is what bullet points look like\nThis is another one\n\nWhen',
+                updatedAt: '2024-12-01T12:00:00.000Z'
             },
             {
                 id: 'seed-2',
                 title: 'II - V - I Practice',
-                content: 'Practice cycling through II - V - I in all keys. Focus on smooth voice leading and rhythmic consistency.',
-                secondaryContent: 'Consider arpeggio substitutions and enclosure ideas for the V chord.',
-                updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+                description: 'Consider arpeggio substitutions and enclosure ideas for the V chord.',
+                content:
+                    'Practice cycling through II - V - I in all keys. Focus on smooth voice leading and rhythmic consistency.',
+                updatedAt: '2024-12-02T12:00:00.000Z'
             },
             {
                 id: 'seed-3',
                 title: 'C Major Fusion Backing',
-                content: 'Altered and Phrygian Dominant flavors over the bridge. Capture motifs that resolve to the tonic.',
-                secondaryContent: 'Track tone choices and pedal settings for repeatable tone.',
-                updatedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
+                description: 'Track tone choices and pedal settings for repeatable tone.',
+                content:
+                    'Altered and Phrygian Dominant flavors over the bridge. Capture motifs that resolve to the tonic.',
+                updatedAt: '2024-12-03T12:00:00.000Z'
             },
             {
                 id: 'seed-4',
                 title: 'Strasbourg St. Denis',
+                description: 'Transcribe a chorus from Roy Hargrove for phrasing reference.',
                 content: 'Melodic Minor & Modes ideas to test against the head. Note any tension releases that felt best.',
-                secondaryContent: 'Transcribe a chorus from Roy Hargrove for phrasing reference.',
-                updatedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+                updatedAt: '2024-12-04T12:00:00.000Z'
             }
         ];
 
@@ -1904,61 +1909,67 @@ When`,
         const PAGE_TRANSITION_MS = 320;
         let isNavigating = false;
 
-        const readNotes = () => {
-            const stored = localStorage.getItem(NOTE_STORAGE_KEY);
-            if (!stored) return [];
+        const generateId = () => {
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                return crypto.randomUUID();
+            }
+            return `note-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        };
 
+        const readNotes = () => {
+            const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (!raw) return [];
             try {
-                const parsed = JSON.parse(stored);
+                const parsed = JSON.parse(raw);
                 return Array.isArray(parsed) ? parsed : [];
-            } catch (error) {
-                console.warn('Unable to parse notes database', error);
+            } catch {
                 return [];
             }
         };
 
-        const saveNotes = (notes) => {
-            localStorage.setItem(NOTE_STORAGE_KEY, JSON.stringify(notes));
+        const saveNotes = (notes) => localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(notes));
+
+        const ensureSeededNotes = () => {
+            const existing = readNotes();
+            if (existing.length) return existing;
+
+            const seeded = DEFAULT_NOTES.map((note) => ({ ...note }));
+            saveNotes(seeded);
+            return seeded;
         };
 
-        const getNotes = () => {
-            const notes = readNotes();
-            if (!notes.length) {
-                saveNotes(DEFAULT_NOTES);
-                return [...DEFAULT_NOTES];
-            }
+        const getNotes = async () => ensureSeededNotes();
 
-            return notes;
-        };
+        const getNoteById = async (id) => ensureSeededNotes().find((note) => note.id === id) || null;
 
-        const createNoteRecord = (title = 'Untitled Note') => {
-            const notes = getNotes();
+        const createNoteRecord = async (title = 'Untitled Note') => {
+            const notes = ensureSeededNotes();
             const newNote = {
-                id: crypto.randomUUID ? crypto.randomUUID() : `note-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                id: generateId(),
+                ...TEMPLATE_NOTE,
                 title: title.trim() || 'Untitled Note',
-                content: '',
-                secondaryContent: '',
                 updatedAt: new Date().toISOString()
             };
 
-            notes.push(newNote);
+            notes.unshift(newNote);
             saveNotes(notes);
             return newNote;
         };
 
-        const updateNoteRecord = (id, updates) => {
-            const notes = getNotes();
+        const updateNoteRecord = async (id, updates) => {
+            const notes = ensureSeededNotes();
             const index = notes.findIndex((note) => note.id === id);
             if (index === -1) return null;
 
-            notes[index] = {
+            const merged = {
                 ...notes[index],
                 ...updates,
-                updatedAt: new Date().toISOString()
+                updatedAt: updates.updatedAt || new Date().toISOString()
             };
 
+            notes[index] = merged;
             saveNotes(notes);
-            return notes[index];
+            return merged;
         };
 
         const buildNavigationUrl = (target, params = {}) => {
@@ -2048,30 +2059,6 @@ When`,
 
         let activeNote = null;
 
-        const resolveActiveNote = () => {
-            const notes = getNotes();
-            let note = notes.find((entry) => entry.id === noteId) || null;
-
-            if (!note && sessionName) {
-                note = notes.find((entry) => entry.title === sessionName) || null;
-            }
-
-            if (!note) {
-                note = createNoteRecord(sessionName || 'Untitled Note');
-            }
-
-            return note;
-        };
-
-        activeNote = resolveActiveNote();
-
-        if (sessionName && activeNote.title !== sessionName) {
-            const updated = updateNoteRecord(activeNote.id, { title: sessionName });
-            if (updated) {
-                activeNote = updated;
-            }
-        }
-
         const renderNote = () => {
             const title = activeNote?.title || 'Untitled Note';
             updateTitleDisplays(title);
@@ -2083,39 +2070,91 @@ When`,
             }
         };
 
-        const persistNote = () => {
+        const persistNote = async () => {
             if (!activeNote) return;
             const contentValue = (textArea?.textContent || '').trim();
             const updates = {
                 content: contentValue === PRIMARY_PLACEHOLDER ? '' : contentValue
             };
 
-            const updated = updateNoteRecord(activeNote.id, updates);
-            if (updated) {
-                activeNote = updated;
+            try {
+                const updated = await updateNoteRecord(activeNote.id, updates);
+                if (updated) {
+                    activeNote = updated;
+                }
+            } catch (error) {
+                console.error('Unable to save note', error);
             }
         };
 
-        renderNote();
+        const resolveActiveNote = async () => {
+            let note = null;
 
-        if (textArea) {
-            textArea.addEventListener('input', persistNote);
-            textArea.addEventListener('blur', persistNote);
-        }
+            if (noteId) {
+                try {
+                    note = await getNoteById(noteId);
+                } catch (error) {
+                    console.warn('Unable to load note by id', error);
+                }
+            }
 
-        if (activeNote && noteTakingSection && infoCardsSection) {
-            infoCardsSection.classList.add('notes-active');
-            noteTakingSection.classList.add('active');
-        }
+            if (!note && sessionName) {
+                try {
+                    const notes = await getNotes();
+                    note = notes.find((entry) => entry.title === sessionName) || null;
+                } catch (error) {
+                    console.warn('Unable to match note by title', error);
+                }
+            }
 
-        if (keySignature) {
-            console.log('Session created with key signature:', keySignature);
-        }
+            if (!note) {
+                note = await createNoteRecord(sessionName || 'Untitled Note');
+            }
+
+            return note;
+        };
+
+        const initializeNote = async () => {
+            try {
+                activeNote = await resolveActiveNote();
+
+                if (sessionName && activeNote && activeNote.title !== sessionName) {
+                    const updated = await updateNoteRecord(activeNote.id, { title: sessionName });
+                    if (updated) {
+                        activeNote = updated;
+                    }
+                }
+
+                renderNote();
+
+                if (textArea) {
+                    textArea.addEventListener('input', persistNote);
+                    textArea.addEventListener('blur', persistNote);
+                }
+
+                if (activeNote && noteTakingSection && infoCardsSection) {
+                    infoCardsSection.classList.add('notes-active');
+                    noteTakingSection.classList.add('active');
+                }
+
+                if (keySignature) {
+                    console.log('Session created with key signature:', keySignature);
+                }
+            } catch (error) {
+                console.error('Unable to initialize note', error);
+            }
+        };
+
+        initializeNote();
 
         if (createNoteButton) {
-            createNoteButton.addEventListener('click', () => {
-                const newNote = createNoteRecord('Untitled Note');
-                navigateTo('analysis', { noteId: newNote.id, sessionName: newNote.title });
+            createNoteButton.addEventListener('click', async () => {
+                try {
+                    const newNote = await createNoteRecord('Untitled Note');
+                    navigateTo('analysis', { noteId: newNote.id, sessionName: newNote.title });
+                } catch (error) {
+                    console.error('Unable to create note', error);
+                }
             });
         }
 
